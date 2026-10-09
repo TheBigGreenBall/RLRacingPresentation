@@ -1,0 +1,241 @@
+{
+ "defaults": {
+  "wheelbase": 2.4,
+  "track_width": 1.5,
+  "wheel_radius": 0.32,
+  "wheel_width": 0.22,
+  "chassis_mass": 450.0,
+  "com_height": 0.42,
+  "suspension_stiffness": 35000.0,
+  "suspension_damping": 3000.0,
+  "max_steer_deg": 30.0,
+  "steer_rate": 6.0,
+  "max_motor_torque": 900.0,
+  "drive_split": 0.0,
+  "tire_friction": 1.1,
+  "wheel_collision": "cylinder"
+ },
+ "ranges": {
+  "wheelbase": [
+   1.6,
+   3.2
+  ],
+  "track_width": [
+   1.1,
+   2.0
+  ],
+  "wheel_radius": [
+   0.22,
+   0.42
+  ],
+  "wheel_width": [
+   0.15,
+   0.35
+  ],
+  "chassis_mass": [
+   250.0,
+   900.0
+  ],
+  "com_height": [
+   0.3,
+   0.7
+  ],
+  "suspension_stiffness": [
+   10000.0,
+   80000.0
+  ],
+  "suspension_damping": [
+   500.0,
+   8000.0
+  ],
+  "max_steer_deg": [
+   15.0,
+   40.0
+  ],
+  "steer_rate": [
+   2.0,
+   12.0
+  ],
+  "max_motor_torque": [
+   300.0,
+   1600.0
+  ],
+  "drive_split": [
+   0.0,
+   1.0
+  ],
+  "tire_friction": [
+   0.7,
+   1.4
+  ]
+ },
+ "wheel_mass": 15.0,
+ "hub_mass": 5.0,
+ "total_mass": 530.0,
+ "geometry": {
+  "length": 2.912,
+  "width": 1.82,
+  "body_h": 0.3,
+  "body_origin_z": 0.32,
+  "chassis_half": [
+   1.456,
+   0.91,
+   0.15
+  ],
+  "chassis_center_z": 0.42,
+  "cabin_half": [
+   0.64064,
+   0.6916,
+   0.16
+  ],
+  "cabin_pos_rel_body": [
+   -0.23296,
+   0.0,
+   0.41
+  ],
+  "hub_xy": {
+   "fl": [
+    1.2,
+    0.75
+   ],
+   "fr": [
+    1.2,
+    -0.75
+   ],
+   "rl": [
+    -1.2,
+    0.75
+   ],
+   "rr": [
+    -1.2,
+    -0.75
+   ]
+  },
+  "size_scalar": 1.716984566034302,
+  "chassis_rgba": [
+   0.85,
+   0.15,
+   0.1,
+   1.0
+  ],
+  "cabin_rgba": [
+   0.15,
+   0.15,
+   0.18,
+   1.0
+  ],
+  "tire_rgba": [
+   0.1,
+   0.1,
+   0.1,
+   1.0
+  ]
+ },
+ "car_colors": [
+  [
+   0.85,
+   0.15,
+   0.1,
+   1.0
+  ],
+  [
+   0.1,
+   0.45,
+   0.85,
+   1.0
+  ],
+  [
+   0.95,
+   0.75,
+   0.1,
+   1.0
+  ],
+  [
+   0.15,
+   0.7,
+   0.3,
+   1.0
+  ],
+  [
+   0.8,
+   0.3,
+   0.75,
+   1.0
+  ],
+  [
+   0.95,
+   0.5,
+   0.1,
+   1.0
+  ],
+  [
+   0.2,
+   0.8,
+   0.8,
+   1.0
+  ],
+  [
+   0.6,
+   0.6,
+   0.6,
+   1.0
+  ],
+  [
+   0.5,
+   0.2,
+   0.1,
+   1.0
+  ],
+  [
+   0.3,
+   0.3,
+   0.9,
+   1.0
+  ],
+  [
+   0.9,
+   0.9,
+   0.4,
+   1.0
+  ],
+  [
+   0.1,
+   0.4,
+   0.2,
+   1.0
+  ],
+  [
+   0.95,
+   0.6,
+   0.8,
+   1.0
+  ],
+  [
+   0.4,
+   0.25,
+   0.6,
+   1.0
+  ],
+  [
+   0.7,
+   0.9,
+   0.2,
+   1.0
+  ],
+  [
+   0.25,
+   0.25,
+   0.25,
+   1.0
+  ]
+ ],
+ "grid": {
+  "spacing_x": 6.0,
+  "offset_y": 1.8
+ },
+ "timing": {
+  "physics_dt": 0.005,
+  "n_frames": 4,
+  "control_dt": 0.02
+ }
+}

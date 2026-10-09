@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RL Racing League: rules briefing</title>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- ===================================================== 1. OVERVIEW -->
+<section class="title" data-background-iframe="car3d.html?hud=0&camera=chase&track=oval" data-background-opacity="0.6">
+  <div class="kicker">Rules briefing</div>
+  <h1>RL Racing League</h1>
+  <p class="sub">Train a reinforcement-learning driver for a simulated car. Race it on tracks nobody has seen. The simulator that trains it also judges it.</p>
+  <div class="chips"><span class="chip">MuJoCo MJX</span><span class="chip">Brax PPO</span><span class="chip">one GPU per team</span><span class="chip red">lap time is the score</span></div>
+  <aside class="notes">Welcome. This deck covers four things: what the league is, enough RL vocabulary to follow along, the contest rules, and the car with its observation vector. The background is the actual car model driving a real benchmark track, rendered live.</aside>
+</section>
+
+<section>
+  <h2>What you are building</h2>
+  <div class="two">
+    <div>
+      <ul>
+        <li>A <b>driver</b>: a neural-network policy that reads 60 numbers 50 times a second and outputs steering and throttle.</li>
+        <li>A <b>car setup</b>: 13 tunable physical parameters (wheelbase, tyre friction, torque, ...) that travel with your submission.</li>
+        <li>Everything runs in <b>MJX</b>, MuJoCo on JAX: thousands of cars simulate in parallel on one GPU, so a training run takes minutes.</li>
+        <li>You edit one directory, <code>team/</code>. The platform, the physics and the judge are frozen.</li>
+      </ul>
+      <div class="callout green">Local numbers transfer: <code>rlr evaluate</code> and the organizer judge run the same code on the same tracks.</div>
+    </div>
+    <div class="vid-wrap">
+      <video data-autoplay loop muted playsinline preload="auto" src="videos/RLLoop.mp4" poster="posters/RLLoop.png"></video>
+      <img class="print-only" src="posters/RLLoop.png" alt="RL loop" />
+      <div class="caption">The loop every driver lives in: observation in, action out, reward back.</div>
+    </div>
+  </div>
+  <aside class="notes">Two deliverables: a policy and a car configuration. Stress that the evaluation tool teams run locally is literally the judge, so there is no surprise at scoring time.</aside>
+</section>
+
+<section>
+  <h2>How the league runs</h2>
+  <video data-autoplay loop muted playsinline preload="auto" src="videos/EventTimeline.mp4" poster="posters/EventTimeline.png" style="max-height: 820px; object-fit: contain;"></video>
+  <img class="print-only" src="posters/EventTimeline.png" alt="Event timeline" />
+  <aside class="notes">Three phases. Stage 1 is a two-hour sprint on public tracks. Overnight is for tuning and longer training. Stage 2 moves to hidden tracks and adds the multi-car finale.</aside>
+</section>
+
+<section>
+  <h2>Stage 1 <span class="muted">(2 hours)</span></h2>
+  <div class="cards">
+    <div class="card"><h3>Goal</h3><p>Fastest lap on the three public <b>benchmark</b> tracks. Everyone drives the same baseline car.</p></div>
+    <div class="card"><h3>Tracks</h3><p><b>oval</b> 449 m, constant 10 m half-width. <b>loop</b> 285 m, gentle corners. <b>serpent</b> 382 m, 6.4 to 9.1 m half-width, corners down to 12.5 m radius.</p></div>
+    <div class="card green"><h3>Workflow</h3><p><code>rlr train</code> → <code>rlr evaluate</code> → <code>rlr package</code> → <code>rlr submit --stage 1</code>. The baseline config laps in about 5 minutes of training.</p></div>
+    <div class="card yellow"><h3>Finale</h3><p>A <b>ghost-mode</b> grid race on serpent: everyone's solo run replayed together, so you can see who is quickest where.</p></div>
+  </div>
+  <div class="callout">Submit early. Each new zip is judged in about 40 s of wall clock, and the leaderboard keeps your best.</div>
+  <aside class="notes">The three tracks are public and ship in the image, so teams can overfit to them if they wish. That is fine for Stage 1; it stops working in Stage 2.</aside>
+</section>
+
+<section>
+  <h2>Overnight <span class="muted">(tune and retrain)</span></h2>
+  <div class="two">
+    <div>
+      <ul>
+        <li><b>Tune the car.</b> 13 scalar parameters plus the wheel collision shape. Values are never rejected, only clamped into the allowed ranges.</li>
+        <li><b>Train on more tracks.</b> The generator makes unlimited easy, medium and hard circuits from a seed; the default mix is 256 tracks.</li>
+        <li><b>Shape the reward.</b> <code>team/reward.py</code> is yours. Progress per step is the default signal.</li>
+        <li><b>Optional self-play.</b> A <code>race:</code> block puts frozen opponents in the world so your policy learns the opponent slots of the observation.</li>
+      </ul>
+    </div>
+    <div>
+      <div class="card red"><h3>Compute per team</h3><p>One g5.xlarge (A10G). Expect <b>≥100k environment steps per second</b> with physical walls. The 60 M-step baseline takes about 13 minutes. Four cars in one world cost about a quarter of the solo throughput.</p></div>
+      <div class="card"><h3>Keep the poll loop in mind</h3><p>The organizer judge keeps running overnight, so late Stage 1 submissions still score.</p></div>
+    </div>
+  </div>
+  <aside class="notes">Overnight is where most of the gains come from: longer training, harder generated tracks, and a car setup that fits the driving style the policy learned.</aside>
+</section>
+
+<section>
+  <h2>Stage 2 <span class="muted">(hidden tracks)</span></h2>
+  <div class="cards">
+    <div class="card"><h3>Hidden tracks</h3><p>Generated from the same generator with a secret seed, two per difficulty preset, plus hand-tuned circuits. Expect hairpins and chicanes you have not seen. Corners are never tighter than about 10 m radius and half-widths never under 6 m.</p></div>
+    <div class="card yellow"><h3>Primary score: ghost mode</h3><p>Same solo judging as Stage 1, summed over the hidden tracks, replayed together as a ghost race on the hardest one.</p></div>
+    <div class="card red"><h3>Finale: collision mode</h3><p>Every submission in one world with real car-to-car contact. Grid start, 240 s, first to <b>3 laps</b> wins.</p></div>
+  </div>
+  <div class="callout">Generalisation is the whole game in Stage 2. A policy that memorised the oval will meet its first hairpin on live television.</div>
+  <aside class="notes">Hidden tracks come from the same distribution as the training generator, so training on a wide mix of generated tracks is the intended path to a good Stage 2 result.</aside>
+</section>
+
+<!-- ===================================================== 2. RL BASICS -->
+<section class="divider">
+  <div class="num">02</div>
+  <h1>Reinforcement learning<br>in five minutes</h1>
+  <p class="muted">Just enough vocabulary to read the config file and the training curves.</p>
+  <aside class="notes">Section two: RL basics. Keep it practical and tied to the racing setting.</aside>
+</section>
+
+<section>
+  <h2>Agent, environment, observation, action, reward</h2>
+  <div class="two wide-left">
+    <div class="vid-wrap">
+      <video data-autoplay loop muted playsinline preload="auto" src="videos/RLLoop.mp4" poster="posters/RLLoop.png"></video>
+      <img class="print-only" src="posters/RLLoop.png" alt="RL loop" />
+    </div>
+    <div class="small">
+      <p><b>Agent.</b> The driver: a policy π that maps an observation to an action.</p>
+      <p><b>Environment.</b> The MJX world: car, track, walls, physics. It owns the true state.</p>
+      <p><b>Observation oₜ.</b> What the agent is allowed to see: 60 floats, track- and car-relative.</p>
+      <p><b>Action aₜ.</b> Two numbers in [-1, 1]: steer and throttle. Applied for 4 physics substeps (20 ms).</p>
+      <p><b>Reward rₜ.</b> A scalar after every step. The agent's only notion of good and bad.</p>
+      <p><b>Step.</b> One observe → act → simulate cycle, 50 per simulated second.</p>
+    </div>
+  </div>
+  <aside class="notes">The environment keeps the full MuJoCo state; the agent sees only the observation. Reward is a design choice made by the team; lap time is the league's choice and the two are only loosely coupled.</aside>
+</section>
+
+<section>
+  <h2>Policy, episode, return, discount</h2>
+  <div class="two">
+    <div>
+      <p><b>Policy</b> π(a | o): a neural network with 60 inputs, hidden layers [256, 256, 128], 2 outputs. During training it is stochastic (a Gaussian around the network's mean); the judge uses the mean.</p>
+      <p><b>Episode:</b> one run from reset to termination. In training: up to 3000 steps (60 s), ending early on a DQ condition. Reset puts the car on the track with a random start.</p>
+      <p><b>Return:</b> the discounted sum of future rewards from a step onward. The policy is trained to make the return large.</p>
+    </div>
+    <div>
+      <div class="formula">G<sub>t</sub> = r<sub>t+1</sub> + γ r<sub>t+2</sub> + γ² r<sub>t+3</sub> + ...<br><span class="dim">γ = 0.99 → an effective horizon of about 100 steps, 2 s of driving</span></div>
+      <div class="formula">maximise E<sub>π</sub>[ G<sub>0</sub> ]<br><span class="dim">over all episodes, all tracks in the batch, all random starts</span></div>
+      <div class="callout">Discounting is why the agent cares about the next corner more than the lap after next. 2 s is enough to brake for a hairpin; it is not enough to plan a whole lap, so lookahead points in the observation do that job.</div>
+    </div>
+  </div>
+  <aside class="notes">Gamma 0.99 gives a time horizon of about 100 steps. Mention that increasing it is possible in config but makes value estimation noisier.</aside>
+</section>
+
+<section>
+  <h2>PPO at a high level</h2>
+  <video data-autoplay loop muted playsinline preload="auto" src="videos/PPOPipeline.mp4" poster="posters/PPOPipeline.png" style="max-height: 760px; object-fit: contain;"></video>
+  <img class="print-only" src="posters/PPOPipeline.png" alt="PPO pipeline" />
+  <p class="caption">Proximal Policy Optimization: collect a batch of experience from every environment, estimate how much better than expected each action was (the advantage), then nudge the policy toward better actions while clipping how far it can move in one update.</p>
+  <aside class="notes">PPO is on-policy: the data comes from the current policy and is thrown away after a few epochs. The clipping ratio of 0.2 is what makes it stable enough to run unattended. One iteration is 20 steps on 4096 envs, then 4 epochs over 4 minibatches of 1024.</aside>
+</section>
+
+<section>
+  <h2>Why thousands of cars at once</h2>
+  <div class="two">
+    <div>
+      <ul>
+        <li>One compiled MuJoCo model holds the ground, <b>600 wall boxes</b> and the car. Tracks are just data: a 400-point centerline and a half-width profile.</li>
+        <li>Placing walls for a different track is a different set of model parameters, not a new compile, so one model serves <b>4096 environments on 256 tracks</b> in one vectorised step.</li>
+        <li>Physics at 200 Hz, control at 50 Hz, about 100k agent steps per second on an A10G.</li>
+        <li>The first run of a new shape JIT-compiles for 2 to 4 minutes; the cache under <code>runs/.jax_cache</code> makes later runs instant.</li>
+      </ul>
+    </div>
+    <div>
+      <div class="formula"><span class="dim">per PPO iteration</span><br>4096 envs × 20 steps = 81 920 transitions<br><span class="dim">per 60 M-step run</span><br>≈ 730 iterations, 12 evaluation checkpoints, ~13 min</div>
+      <div class="callout">Constraint to remember: <code>batch_size × num_minibatches</code> must divide <code>num_envs</code>.</div>
+    </div>
+  </div>
+  <aside class="notes">This slide explains why the platform is built the way it is: everything is shaped so that a single compiled model can serve many tracks. Teams only need to know the consequence: huge batches, fast training, a one-time compile cost.</aside>
+</section>
+
+<section>
+  <h2>Exploration versus exploitation</h2>
+  <div class="two">
+    <div>
+      <p>The training policy is <b>stochastic</b>: it samples around its mean action. That noise is how it discovers that braking later works, or that cutting a chicane is faster.</p>
+      <p>An <b>entropy bonus</b> (<code>entropy_cost: 1e-3</code>) keeps the noise from collapsing too early. Too much and the car wobbles forever; too little and it locks into the first thing that worked.</p>
+      <p><b>Random starts</b> (position along the lap, lateral and yaw noise) are exploration too: the policy sees every corner from many angles instead of always arriving the same way.</p>
+    </div>
+    <div>
+      <div class="card green"><h3>Signs you explore too little</h3><p>Reward plateaus early. Policy standard deviation drops near zero. The car takes the same line on every track and understeers on new ones.</p></div>
+      <div class="card yellow"><h3>Signs you explore too much</h3><p>Reward curve stays noisy. Oscillating steering in replays. Lap times improve slower than the training reward suggests.</p></div>
+      <div class="callout">The judge uses the <b>deterministic mean</b> action, so a jittery training policy can still race cleanly.</div>
+    </div>
+  </div>
+  <aside class="notes">Point teams at train_metrics.jsonl and the dashboard curves: policy entropy and KL per update are logged.</aside>
+</section>
+
+<section>
+  <h2>Reward shaping: your lever</h2>
+  <div class="two wide-left">
+    <div>
+      <div class="formula small">r = 1.0 · <b>progress</b> <span class="dim">(metres along the centerline this step)</span><br>
+        &nbsp;&nbsp;+ 0.0 · speed · dt<br>
+        &nbsp;&nbsp;− 0.05 · ‖action − prev_action‖² <span class="dim">(smoothness)</span><br>
+        &nbsp;&nbsp;− 0.0 · (lateral / half_width)² <span class="dim">(centering, off by default)</span><br>
+        &nbsp;&nbsp;− 0.5 · wall_contact − 20 · off_track − 20 · flipped<br>
+        &nbsp;&nbsp;+ 0.0 · lap_completed</div>
+      <p class="small">At 15 m/s the progress term is about 0.3 per step, so the default episode reward is roughly "metres driven" minus penalties.</p>
+      <p class="small"><code>team/reward.py</code> gets a <code>RewardContext</code> with: progress, speed, lateral, half_width, heading_err, off_track, flipped, wall_contact, car_contact, lap_completed, lap_time, action, prev_action, dt. Pure JAX, runs inside <code>vmap</code>.</p>
+    </div>
+    <div>
+      <div class="card red"><h3>The judge never calls it</h3><p>Reward is training-time only. Lap time is what counts. A reward that is easy to collect without lapping faster will be collected.</p></div>
+      <div class="card"><h3>Common shaping ideas</h3><ul><li>speed bonus to break slow-and-safe plateaus</li><li>lap bonus to value finishing</li><li>heading-error penalty for cleaner lines</li><li>stronger wall penalty before collision mode</li></ul></div>
+    </div>
+  </div>
+  <aside class="notes">Reward hacking stories are useful here: a policy rewarded for speed alone will spin in circles; a progress reward with no wall penalty will bounce off the walls happily because walls are physical.</aside>
+</section>
+
+<section>
+  <h2>Checkpoints and evaluation</h2>
+  <div class="two">
+    <div>
+      <ul>
+        <li>Training saves a checkpoint at each of the <b>12 evaluations</b> plus <code>final/</code>: <code>params.pkl</code> (normalizer, policy, value) and <code>meta.json</code> (observation version, network sizes, step).</li>
+        <li><code>rlr evaluate runs/run1/final --tracks benchmark</code> runs the exact judge: start on the line, 180 s, best lap per track.</li>
+        <li><code>rlr train --restore DIR</code> warm-starts from a checkpoint, for example to add opponents after solo training.</li>
+        <li>The <b>observation normalizer</b> travels with the checkpoint: inputs that never varied in training (opponent slots when training solo) are left unscaled so they cannot explode later.</li>
+      </ul>
+    </div>
+    <div>
+      <div class="card green"><h3>Pick the right checkpoint</h3><p>The last one is not always the fastest. Evaluate several and package the best lap, not the best training reward.</p></div>
+      <div class="card"><h3>Dashboard</h3><p><code>rlr dashboard</code> shows curves, evaluates checkpoints, renders replays and submits, all from a browser over an SSH tunnel.</p></div>
+    </div>
+  </div>
+  <aside class="notes">Mention that a checkpoint from a modified platform is rejected by the judge because the observation version in meta.json will not match.</aside>
+</section>
+
+<!-- ===================================================== 3. CONTEST RULES -->
+<section class="divider">
+  <div class="num">03</div>
+  <h1>Contest rules</h1>
+  <p class="muted">How runs are judged, what disqualifies, what you may change.</p>
+  <aside class="notes">Section three: the rules proper.</aside>
+</section>
+
+<section>
+  <h2>How a run is judged</h2>
+  <div class="two">
+    <div>
+      <ol>
+        <li>The judge unpacks your zip: <code>params.pkl</code>, <code>meta.json</code>, <code>policy.py</code>, <code>car.yaml</code>, <code>submission.json</code>.</li>
+        <li>It builds <b>your car</b> (clamped) in <b>its</b> copy of the platform and imports your <code>policy.py</code> to get <code>act(params, obs)</code>.</li>
+        <li>For each track: one car, placed on the start line, no noise, <b>180 s of simulated time</b>.</li>
+        <li>Score per track = <b>best completed lap</b>. No completed lap = <b>999 s</b>.</li>
+        <li>A DQ condition freezes the stats at that moment; laps already completed still count.</li>
+      </ol>
+    </div>
+    <div>
+      <div class="chips"><span class="chip">deterministic</span><span class="chip">solo</span><span class="chip">180 s per track</span><span class="chip red">no lap = 999 s</span></div>
+      <div class="callout green">Same code path as <code>rlr evaluate</code>: if it laps in 41 s on your box, it laps in 41 s on the judge.</div>
+      <div class="callout">Allowed imports in <code>policy.py</code>: jax, flax, brax, numpy, mujoco, rlracing. It must be pure JAX: obs shape (60,) in, action shape (2,) in [-1, 1] out.</div>
+    </div>
+  </div>
+  <aside class="notes">Emphasise that the judge uses its own copy of rlracing; modifying the platform locally cannot change the judge's physics, and will break the observation-version check.</aside>
+</section>
+
+<section>
+  <h2>Scoring</h2>
+  <video data-autoplay loop muted playsinline preload="auto" src="videos/ScoringRule.mp4" poster="posters/ScoringRule.png" style="max-height: 800px; object-fit: contain;"></video>
+  <img class="print-only" src="posters/ScoringRule.png" alt="Scoring rule" />
+  <p class="caption">Leaderboard total = sum of best laps over the stage's tracks. Lower is better. A track without a lap adds 999 s. The best submission per team is kept.</p>
+  <aside class="notes">A single DNF track costs 999 s, which is more than any lap-time gain elsewhere. Reliability on every track beats brilliance on one.</aside>
+</section>
+
+<section>
+  <h2>What ends an episode</h2>
+  <video data-autoplay loop muted playsinline preload="auto" src="videos/DQRules.mp4" poster="posters/DQRules.png" style="max-height: 800px; object-fit: contain;"></video>
+  <img class="print-only" src="posters/DQRules.png" alt="DQ rules" />
+  <p class="caption">Four checks, fixed by the platform: off track beyond half-width + 0.5 m, rolled over (up-axis z &lt; 0.3), faster than 60 m/s, or any non-finite state. Your config can change these numbers for training; the judge ignores your values.</p>
+  <aside class="notes">Walls are physical, so "off track" mostly happens by launching over a wall after a collision. Rolling over is the common DQ for cars tuned with a high centre of mass and soft suspension.</aside>
+</section>
+
+<section>
+  <h2>Lap validity</h2>
+  <div class="two">
+    <div>
+      <ul>
+        <li>The centerline is 400 points; the car's position is projected onto it to get its arc length <b>s</b>.</li>
+        <li>A lap completes when s wraps past the start line <b>forwards</b> while the lap is valid.</li>
+        <li>Crossing the line <b>backwards</b> voids the current lap. Driving the track in reverse never scores.</li>
+        <li>In judging the car starts on the line, so the first forward crossing is lap 1.</li>
+        <li>In training with random starts, timing waits for the first crossing of the line.</li>
+        <li>Lap time = steps since the last crossing × 0.02 s.</li>
+      </ul>
+    </div>
+    <div>
+      <div class="card yellow"><h3>Multi-car races</h3><p>Grid slots are behind the line, so every car's first crossing starts its clock. Laps only count while the car is not disqualified. A disqualified car gets zero throttle and coasts to a stop where it is.</p></div>
+      <div class="callout">The off-track margin is 0.5 m beyond the half-width. Cutting the inside of a corner is fine as long as you stay within it; the walls make that hard anyway.</div>
+    </div>
+  </div>
+  <aside class="notes">Same lap logic in the single-car and multi-car simulators. The random-start rule is only relevant in training.</aside>
+</section>
+
+<section>
+  <h2>Ghost mode and collision mode</h2>
+  <div class="cards">
+    <div class="card yellow">
+      <h3>Ghost mode</h3>
+      <p>Every submission's <b>solo</b> run on one track, recorded and replayed together. No contact between cars.</p>
+      <p>Ranking = solo score on that track. Cars literally drive through each other, so what you see is pure pace.</p>
+      <p class="muted small">Stage 1 finale on serpent. Stage 2 primary score on hidden tracks.</p>
+    </div>
+    <div class="card red">
+      <h3>Collision mode</h3>
+      <p>All cars in <b>one world</b> with contact on. Grid start in rows of two, 6 m apart, ±1.8 m from the centerline. 240 s, target 3 laps.</p>
+      <p>Ranking: <b>finishers by time</b>, then still-running cars by laps and progress, then disqualified cars by laps and progress.</p>
+      <p class="muted small">Stage 2 finale. Expect a first-corner pile-up from drivers that never saw traffic.</p>
+    </div>
+  </div>
+  <div class="callout">Opponent slots in the observation (indices 45 to 60) are all zero when you train alone. A solo-trained policy sees them light up for the first time in the collision finale. Self-play overnight is how you prepare.</div>
+  <aside class="notes">Ghost mode has no interaction, so it is fair and deterministic. Collision mode is the entertainment, with a ranking rule that still rewards finishing.</aside>
+</section>
+
+<section>
+  <h2>What you may change</h2>
+  <div class="two">
+    <div>
+      <h3>Yours: <code>team/</code></h3>
+      <ul class="small">
+        <li><code>config.yaml</code>: car parameters, car variants, training tracks, start noise, episode length, reward weights, PPO and network hyper-parameters, race block for self-play.</li>
+        <li><code>reward.py</code>: the reward function, pure JAX.</li>
+        <li><code>policy.py</code>: how a checkpoint is loaded and turned into an <code>act</code> function.</li>
+      </ul>
+      <div class="callout green">Only the <b>car</b> block and your <b>policy</b> travel with the submission. Reward, tracks and PPO settings are training-time only.</div>
+    </div>
+    <div>
+      <h3>Frozen: the platform</h3>
+      <ul class="small">
+        <li>Observation contract <b>v2</b>, 60 floats with fixed scaling. A checkpoint with a different version is rejected.</li>
+        <li>Physics: 200 Hz MuJoCo, 50 Hz control, actions in [-1, 1].</li>
+        <li>Termination and DQ rules, lap logic, judging procedure.</li>
+        <li>Car parameter ranges: out-of-range values are clamped, with a printed note, never rejected.</li>
+      </ul>
+      <div class="callout red">Do not edit <code>rlracing/</code>. The judge uses its own copy; a mismatch only breaks your own checkpoints.</div>
+    </div>
+  </div>
+  <aside class="notes">The contract is enforced technically through the observation version in meta.json, not by trust.</aside>
+</section>
+
+<section>
+  <h2>The 13 car parameters</h2>
+  <div class="two wide-left">
+    <table>
+      <thead><tr><th>parameter</th><th class="num">min</th><th class="num">default</th><th class="num">max</th><th>unit</th></tr></thead>
+      <tbody>
+        <tr><td>wheelbase</td><td class="num">1.6</td><td class="num">2.4</td><td class="num">3.2</td><td>m</td></tr>
+        <tr><td>track_width</td><td class="num">1.1</td><td class="num">1.5</td><td class="num">2.0</td><td>m</td></tr>
+        <tr><td>wheel_radius</td><td class="num">0.22</td><td class="num">0.32</td><td class="num">0.42</td><td>m</td></tr>
+        <tr><td>wheel_width</td><td class="num">0.15</td><td class="num">0.22</td><td class="num">0.35</td><td>m</td></tr>
+        <tr><td>chassis_mass</td><td class="num">250</td><td class="num">450</td><td class="num">900</td><td>kg</td></tr>
+        <tr><td>com_height</td><td class="num">0.30</td><td class="num">0.42</td><td class="num">0.70</td><td>m</td></tr>
+        <tr><td>suspension_stiffness</td><td class="num">10 000</td><td class="num">35 000</td><td class="num">80 000</td><td>N/m</td></tr>
+        <tr><td>suspension_damping</td><td class="num">500</td><td class="num">3 000</td><td class="num">8 000</td><td>N·s/m</td></tr>
+        <tr><td>max_steer_deg</td><td class="num">15</td><td class="num">30</td><td class="num">40</td><td>deg</td></tr>
+        <tr><td>steer_rate</td><td class="num">2.0</td><td class="num">6.0</td><td class="num">12.0</td><td>rad/s</td></tr>
+        <tr><td>max_motor_torque</td><td class="num">300</td><td class="num">900</td><td class="num">1 600</td><td>N·m total</td></tr>
+        <tr><td>drive_split</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">1.0</td><td>0 = RWD, 1 = FWD</td></tr>
+        <tr><td>tire_friction</td><td class="num">0.7</td><td class="num">1.1</td><td class="num">1.4</td><td>coefficient</td></tr>
+      </tbody>
+    </table>
+    <div>
+      <div class="card"><h3>Plus one choice</h3><p><code>wheel_collision: cylinder</code> (default) or <code>sphere</code>. Spheres are cheaper and smoother; cylinders have a flat contact patch.</p></div>
+      <div class="card yellow"><h3>Clamped, never rejected</h3><p><code>rlr package</code> writes the clamped values into <code>car.yaml</code> and prints a note for each one it changed.</p></div>
+      <div class="card red"><h3>Trade-offs</h3><p>More torque and friction mean faster straights and more spins. Lower centre of mass resists rolling over. A longer wheelbase is stable but turns slower; the generator's tightest hidden corners are about 10 m radius.</p></div>
+    </div>
+  </div>
+  <aside class="notes">Wheels add 4 × 20 kg on top of chassis mass, so the default car weighs 530 kg. Changing a range would change physics for everyone, which is why the ranges are frozen.</aside>
+</section>
+
+<section>
+  <h2>From training run to leaderboard</h2>
+  <pre><code class="language-bash" data-trim>
+rlr train                           # -> runs/run1 (or --run-name NAME); edit team/config.yaml first
+rlr evaluate runs/run1/final --tracks benchmark   # the judge's solo mode, locally
+rlr package runs/run1               # -> submission/: params.pkl meta.json policy.py car.yaml submission.json
+rlr submit --team my-team --stage 1 # zips and uploads to the league bucket
+rlr render runs/replays/*.npz --camera chase      # watch what it actually did
+  </code></pre>
+  <div class="two" style="margin-top: 0.5em;">
+    <div class="card green"><h3>What the organizer does</h3><p>A poll loop downloads each new zip, judges it in solo mode on the stage's tracks, writes a result JSON and rebuilds the leaderboard. Restart-safe, so nothing is lost if it hiccups.</p></div>
+    <div class="card"><h3>Rejections you can avoid</h3><p>Missing <code>car.yaml</code>, a <code>policy.py</code> that fails to import, or a checkpoint whose observation version is not 2.</p></div>
+  </div>
+  <aside class="notes">Run through the five commands. The dashboard does the same with buttons.</aside>
+</section>
+
+<!-- ===================================================== 4. CAR AND OBSERVATION -->
+<section class="divider">
+  <div class="num">04</div>
+  <h1>The car and what it sees</h1>
+  <p class="muted">Geometry, timing, and the 60-float observation, live in 3D.</p>
+  <aside class="notes">Section four: the car and the observation contract.</aside>
+</section>
+
+<section>
+  <h2>The car</h2>
+  <div class="two wide-right" style="height: 85%;">
+    <div class="small">
+      <p>A box chassis on four wheels with independent suspension, built as a MuJoCo model from your 13 parameters.</p>
+      <ul>
+        <li>Default footprint <b>2.91 × 1.82 m</b>, chassis box centred 0.42 m above ground, <b>530 kg</b> total.</li>
+        <li>Front wheels steer (±30° by default) through position servos; action[0] = −1..1 maps to full lock.</li>
+        <li>Rear-wheel drive by default: 450 N·m per rear wheel; action[1] is the torque fraction. <code>drive_split</code> moves torque to the front.</li>
+        <li>Suspension: a vertical slider per wheel, ±0.12 m travel, spring and damper from your config.</li>
+        <li>Tyres collide with the ground only; the chassis box is what hits walls and other cars.</li>
+      </ul>
+      <div class="callout">Walls are 4 × 0.5 × 1 m boxes every 3.2 m along both edges of the track, 600 of them in the model. They are real: hit one and you bounce.</div>
+    </div>
+    <iframe class="scene" src="car3d.html?hud=0&camera=free&track=oval" loading="lazy" title="3D car"></iframe>
+    <img class="print-only" src="posters/RLLoop.png" alt="" style="display:none" />
+  </div>
+  <aside class="notes">The 3D view is the actual geometry: dimensions come from the same formulas that build the MuJoCo model. Drag to orbit.</aside>
+</section>
+
+<section>
+  <h2>Timing and actions</h2>
+  <div class="two">
+    <div>
+      <div class="formula">physics dt = 0.005 s <span class="dim">(200 Hz)</span><br>4 substeps per action<br>control dt = 0.02 s <span class="dim">(50 Hz)</span><br>episode ≤ 3000 steps <span class="dim">(60 s, training)</span><br>judging = 180 s per track <span class="dim">(9000 decisions)</span></div>
+      <div class="formula">action = [steer, throttle] ∈ [-1, 1]²<br><span class="dim">clipped by the environment, then applied for 4 substeps</span></div>
+    </div>
+    <div>
+      <div class="card"><h3>steer</h3><p>−1 full left lock to +1 full right lock, through a servo with your <code>steer_rate</code>. The observation reports the actual front-wheel angle, so the policy can see lag.</p></div>
+      <div class="card red"><h3>throttle</h3><p>Fraction of <code>max_motor_torque</code> on the driven wheels; negative is braking or reverse. There is no separate brake.</p></div>
+      <div class="card green"><h3>prev_action</h3><p>The last command is part of the next observation (indices 43 and 44), which is what makes the smoothness penalty learnable.</p></div>
+    </div>
+  </div>
+  <aside class="notes">50 Hz is fast enough for smooth control and slow enough to keep rollouts cheap. 60 m/s is the hard speed limit.</aside>
+</section>
+
+<section>
+  <h2>The observation: 60 floats</h2>
+  <video data-autoplay loop muted playsinline preload="auto" src="videos/ObsLayoutBar.mp4" poster="posters/ObsLayoutBar.png" style="max-height: 820px; object-fit: contain;"></video>
+  <img class="print-only" src="posters/ObsLayoutBar.png" alt="Observation layout" />
+  <aside class="notes">Eight blocks. Half of the vector is "where is the track going": ten centerline points ahead, in the car frame, plus the width there. Then where you are relative to the centerline, how you are moving, what the wheels do, what you commanded last, and the three nearest cars.</aside>
+</section>
+
+<section data-background-iframe="car3d.html?panel=0&camera=overhead&track=serpent" data-background-interactive data-obs-block="">
+  <div class="overlay-box">
+    <h2>What the car sees, block by block</h2>
+    <p class="muted small" style="margin: 0 0 0.4em;">Step forward to light up one block at a time in the live scene.</p>
+    <ul>
+      <li class="fragment" data-obs-block="0" data-camera="overhead"><span class="sw" style="background: var(--rlr-b0)"></span><b>[0:20] lookahead_xy</b>: centerline points 1, 2, 3, 5, 8, 12, 16, 20, 25, 30 m ahead, x forward / y left, ÷ 30.</li>
+      <li class="fragment" data-obs-block="1"><span class="sw" style="background: var(--rlr-b1)"></span><b>[20:30] half-width</b> at each of those points, ÷ 14.</li>
+      <li class="fragment" data-obs-block="2" data-camera="chase"><span class="sw" style="background: var(--rlr-b2)"></span><b>[30:32] lateral</b> offset (+left, ÷ 14) and <b>heading error</b> (÷ π).</li>
+      <li class="fragment" data-obs-block="3"><span class="sw" style="background: var(--rlr-b3)"></span><b>[32:35] body velocity</b>: forward, left, up, ÷ 30 m/s.</li>
+      <li class="fragment" data-obs-block="4"><span class="sw" style="background: var(--rlr-b4)"></span><b>[35:38] angular velocity</b>: roll, pitch, yaw rate, ÷ 5 rad/s.</li>
+      <li class="fragment" data-obs-block="5"><span class="sw" style="background: var(--rlr-b5)"></span><b>[38:43] wheel spins</b> fl, fr, rl, rr (÷ 100) and <b>steer angle</b> (÷ 0.7).</li>
+      <li class="fragment" data-obs-block="6"><span class="sw" style="background: var(--rlr-b6)"></span><b>[43:45] previous action</b>: steer, throttle.</li>
+      <li class="fragment" data-obs-block="7" data-camera="overhead"><span class="sw" style="background: var(--rlr-b7)"></span><b>[45:60] opponents</b>: 3 nearest cars × [x, y, vx, vy, size], ego frame, ÷ 30 and ÷ 3. Zeros when alone.</li>
+      <li class="fragment" data-obs-block="">All together. Keys inside the scene: 1-8, 0, c camera, t track, p panel, space.</li>
+    </ul>
+  </div>
+  <aside class="notes">Step through the fragments: each one highlights a block in the live scene and dims the rest. The scene is interactive; click into it to orbit or press keys.</aside>
+</section>
+
+<section>
+  <h2>Live readout</h2>
+  <iframe class="scene" style="height: 86%;" src="car3d.html?panel=1&camera=chase&track=loop" loading="lazy" title="3D observation readout"></iframe>
+  <aside class="notes">Right panel shows the scaled values the policy receives, grouped by block, updating live. Point out that every number stays within about ±1, that lookahead x grows with distance, and that opponent slot 3 stays zero because only two other cars exist.</aside>
+</section>
+
+<section>
+  <h2>Cheat sheet</h2>
+  <div class="cards">
+    <div class="card"><h3>Scoring</h3><p>Solo, 180 s per track, best lap. No lap = 999 s. Total = sum over tracks, lower wins. Best submission per team.</p></div>
+    <div class="card red"><h3>DQ</h3><p>Off track &gt; half-width + 0.5 m, rolled over, &gt; 60 m/s, non-finite. Backward line crossing voids the lap.</p></div>
+    <div class="card yellow"><h3>Stages</h3><p>1: benchmark tracks + ghost race on serpent. Overnight: tune and retrain. 2: hidden tracks, ghost primary, collision finale (3 laps, 240 s).</p></div>
+    <div class="card green"><h3>Yours to change</h3><p><code>team/config.yaml</code>, <code>team/reward.py</code>, <code>team/policy.py</code>. 13 car parameters, clamped. Observation v2 and physics are frozen.</p></div>
+  </div>
+  <div class="chips" style="margin-top: 1em;"><span class="chip mono">rlr train</span><span class="chip mono">rlr evaluate runs/run1/final</span><span class="chip mono">rlr package runs/run1</span><span class="chip mono">rlr submit --team T --stage 1</span><span class="chip mono">rlr dashboard</span></div>
+  <p class="muted small" style="margin-top: 1em;">Read <code>docs/PARTICIPANTS.md</code> for the full observation table, config reference and Docker steps. Good luck, and watch the first corner.</p>
+  <aside class="notes">Close on the five commands and the docs pointer.</aside>
+</section>
+
+</div>
+</div>
+<script type="module" src="/src/main.ts"></script>
+</body>
+</html>

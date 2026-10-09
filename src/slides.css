@@ -1,0 +1,82 @@
+/* Deck styling on top of reveal's black theme. Colors come from theme/theme.css (mirrors theme/theme.ts). */
+.reveal-viewport { background: radial-gradient(1400px 800px at 30% 10%, var(--rlr-bg-soft), var(--rlr-bg)); }
+.reveal { font-family: var(--rlr-font); font-size: 34px; color: var(--rlr-text); }
+.reveal h1, .reveal h2, .reveal h3 { font-family: var(--rlr-font); text-transform: none; letter-spacing: -0.01em; font-weight: 800; color: var(--rlr-text); }
+.reveal h1 { font-size: 2.6em; }
+.reveal h2 { font-size: 1.7em; margin-bottom: 0.5em; text-align: left; }
+.reveal h3 { font-size: 1.15em; color: var(--rlr-text-muted); font-weight: 600; }
+.reveal section { text-align: left; padding: 40px 60px; box-sizing: border-box; height: 100%; }
+.reveal .slides { text-align: left; }
+.reveal p, .reveal li { line-height: 1.4; }
+.reveal ul { display: block; margin-left: 1em; }
+.reveal li { margin-bottom: 0.35em; }
+.reveal li::marker { color: var(--rlr-accent); }
+.reveal code { font-family: var(--rlr-mono); font-size: 0.85em; background: #1b2330; padding: 0.05em 0.35em; border-radius: 6px; color: #dbe7ff; }
+.reveal pre { width: 100%; font-size: 0.6em; box-shadow: none; }
+.reveal pre code { padding: 18px 22px; border-radius: 12px; max-height: 620px; }
+.reveal a { color: var(--rlr-accent2); }
+.reveal .muted { color: var(--rlr-text-muted); }
+.reveal .accent { color: var(--rlr-accent); }
+.reveal .small { font-size: 0.7em; }
+.reveal .kicker { font-size: 0.6em; letter-spacing: 0.14em; text-transform: uppercase; color: var(--rlr-accent); font-weight: 700; margin-bottom: 0.4em; }
+
+/* section titles */
+.reveal section.title { display: flex !important; flex-direction: column; justify-content: center; align-items: flex-start; }
+.reveal section.title .kicker { font-size: 0.7em; }
+.reveal section.title h1 { margin-bottom: 0.2em; }
+.reveal section.title .sub { font-size: 1.1em; color: var(--rlr-text); max-width: 26em; text-shadow: 0 2px 18px rgba(0,0,0,.9); }
+.reveal section.title h1, .reveal section.title .kicker { text-shadow: 0 2px 24px rgba(0,0,0,.95); }
+.reveal section.divider { display: flex !important; flex-direction: column; justify-content: center; }
+.reveal section.divider h1 { font-size: 3em; }
+.reveal section.divider .num { font-family: var(--rlr-mono); color: var(--rlr-accent); font-size: 1.4em; }
+
+/* layout helpers */
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; align-items: start; }
+.two.wide-left { grid-template-columns: 1.3fr 1fr; }
+.two.wide-right { grid-template-columns: 1fr 1.3fr; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 26px; margin-top: 0.4em; }
+.card { background: var(--rlr-panel); border: 2px solid var(--rlr-panel-border); border-top: 6px solid var(--rlr-accent2); border-radius: 18px; padding: 20px 26px; font-size: 0.8em; }
+.card.red { border-top-color: var(--rlr-accent); }
+.card.green { border-top-color: var(--rlr-good); }
+.card.yellow { border-top-color: var(--rlr-warn); }
+.card.purple { border-top-color: var(--rlr-b7); }
+.card h3 { margin: 0 0 0.4em; font-size: 1.05em; color: var(--rlr-text); }
+.card ul { margin-left: 0.8em; }
+.card p { margin: 0.2em 0; }
+.callout { background: var(--rlr-panel); border-left: 8px solid var(--rlr-warn); border-radius: 12px; padding: 16px 26px; font-size: 0.85em; margin-top: 0.6em; }
+.callout.red { border-left-color: var(--rlr-accent); }
+.callout.green { border-left-color: var(--rlr-good); }
+.formula { font-family: var(--rlr-mono); font-size: 0.95em; background: #0f151d; border: 1px solid var(--rlr-panel-border); border-radius: 12px; padding: 18px 26px; margin: 0.4em 0; }
+.formula .dim { color: var(--rlr-text-muted); }
+.big { font-size: 1.6em; font-weight: 800; }
+.chips { display: flex; flex-wrap: wrap; gap: 12px; margin: 0.4em 0; }
+.chip { display: inline-block; padding: 4px 16px; border-radius: 999px; font-size: 0.65em; font-weight: 600; border: 2px solid var(--rlr-accent2); color: var(--rlr-accent2); background: rgba(54,195,255,.1); }
+.chip.red { border-color: var(--rlr-accent); color: var(--rlr-accent); background: rgba(255,77,61,.1); }
+.chip.green { border-color: var(--rlr-good); color: var(--rlr-good); background: rgba(61,220,151,.1); }
+.chip.yellow { border-color: var(--rlr-warn); color: var(--rlr-warn); background: rgba(255,200,87,.1); }
+.chip.mono { font-family: var(--rlr-mono); }
+
+/* tables */
+.reveal table { font-size: 0.62em; border-collapse: collapse; margin: 0; }
+.reveal table th { color: var(--rlr-text-muted); font-weight: 600; text-align: left; border-bottom: 2px solid var(--rlr-panel-border); padding: 8px 14px; }
+.reveal table td { border-bottom: 1px solid #1e2733; padding: 7px 14px; }
+.reveal table td.num, .reveal table th.num { font-family: var(--rlr-mono); text-align: right; }
+.reveal table tr:last-child td { border-bottom: none; }
+.reveal table.obs td:first-child { font-family: var(--rlr-mono); font-weight: 700; }
+.sw { display: inline-block; width: 16px; height: 16px; border-radius: 4px; vertical-align: -2px; margin-right: 10px; }
+
+/* media */
+.reveal video { width: 100%; border-radius: 16px; display: block; box-shadow: 0 30px 80px -40px rgba(0,0,0,.9); }
+.reveal .vid-wrap { position: relative; }
+.reveal .caption { font-size: 0.6em; color: var(--rlr-text-muted); margin-top: 0.4em; }
+.reveal iframe.scene { width: 100%; height: 100%; border: 0; border-radius: 16px; background: var(--rlr-bg); }
+.reveal .print-only { display: none; }
+.overlay-box { position: absolute; left: 60px; bottom: 60px; max-width: 760px; background: rgba(11,15,20,.82); border: 1px solid var(--rlr-panel-border); border-radius: 16px; padding: 18px 28px; font-size: 0.8em; backdrop-filter: blur(6px); }
+.overlay-box h2 { font-size: 1.1em; margin-bottom: 0.3em; }
+.overlay-box ul { margin: 0 0 0 0.8em; font-size: 0.85em; }
+.overlay-box li.current-fragment { color: var(--rlr-warn); }
+.legend-row { display: flex; align-items: center; gap: 12px; }
+
+/* print-pdf: swap videos and iframes for posters */
+.reveal.print-pdf-mode video, html.print-pdf .reveal video, html.print-pdf .reveal iframe.scene { display: none !important; }
+html.print-pdf .reveal .print-only { display: block !important; width: 100%; border-radius: 16px; }

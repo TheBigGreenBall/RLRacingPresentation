@@ -1,0 +1,24 @@
+/* Mirrors theme/theme.ts. Keep the two in sync. */
+:root {
+  --rlr-bg: #0b0f14;
+  --rlr-bg-soft: #121820;
+  --rlr-panel: #161d27;
+  --rlr-panel-border: #263142;
+  --rlr-text: #e6edf3;
+  --rlr-text-muted: #9aa7b6;
+  --rlr-accent: #ff4d3d;
+  --rlr-accent2: #36c3ff;
+  --rlr-good: #3ddc97;
+  --rlr-warn: #ffc857;
+  --rlr-bad: #ff6b6b;
+  --rlr-font: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --rlr-mono: 'JetBrains Mono', 'SFMono-Regular', Menlo, Consolas, monospace;
+  --rlr-b0: #4f9cf5;
+  --rlr-b1: #8cc4ff;
+  --rlr-b2: #ff8a4c;
+  --rlr-b3: #3ddc97;
+  --rlr-b4: #7fe3b8;
+  --rlr-b5: #f2b134;
+  --rlr-b6: #f06292;
+  --rlr-b7: #a78bfa;
+}
