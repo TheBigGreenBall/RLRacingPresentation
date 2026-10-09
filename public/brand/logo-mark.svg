@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" role="img" aria-label="RL Racing League mark">
+  <rect width="200" height="200" rx="40" fill="#141413"/>
+  <g transform="translate(100 100) scale(0.44) translate(-85 -60) skewX(-14)" fill="#e10600">
+    <!-- speed bars trailing the R; their tails sit on one diagonal -->
+    <path d="M -16 0 H -122 L -104 22 H -16 Z"/>
+    <path d="M -16 34 H -94 L -78 54 H -16 Z"/>
+    <path d="M -16 66 H -70 L -55 84 H -16 Z"/>
+    <!-- R -->
+    <path fill-rule="evenodd" d="M0 0 H76 C112 0 130 16 130 40 C130 60 118 72 100 78 L140 120 H92 L58 80 H42 V120 H0 Z
+      M42 30 V52 H76 C88 52 92 47 92 41 C92 35 88 30 76 30 Z"/>
+    <!-- L whose foot streaks forward -->
+    <path d="M150 0 H192 V84 H312 L272 120 H150 Z"/>
+  </g>
+</svg>

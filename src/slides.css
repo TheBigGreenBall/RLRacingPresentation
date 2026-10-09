@@ -24,6 +24,7 @@
 .reveal section.title { display: flex !important; flex-direction: column; justify-content: center; align-items: flex-start; }
 .reveal section.title .kicker { font-size: 0.7em; }
 .reveal section.title h1 { margin-bottom: 0.2em; }
+.reveal section.title .logo { display: block; width: 1000px; max-width: 75%; height: auto; margin: 0.1em 0 0.5em -0.6%; filter: drop-shadow(0 6px 28px rgba(0,0,0,.9)); }
 .reveal section.title .sub { font-size: 1.1em; color: var(--rlr-text); max-width: 26em; text-shadow: 0 2px 18px rgba(0,0,0,.9); }
 .reveal section.title h1, .reveal section.title .kicker { text-shadow: 0 2px 24px rgba(0,0,0,.95); }
 .reveal section.divider { display: flex !important; flex-direction: column; justify-content: center; }
