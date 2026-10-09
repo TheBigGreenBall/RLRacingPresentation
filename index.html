@@ -186,11 +186,10 @@
         &nbsp;&nbsp;− 0.0 · (lateral / half_width)² <span class="dim">(centering, off by default)</span><br>
         &nbsp;&nbsp;− 0.5 · wall_contact − 20 · off_track − 20 · flipped<br>
         &nbsp;&nbsp;+ 0.0 · lap_completed</div>
-      <p class="small">At 15 m/s the progress term is about 0.3 per step, so the default episode reward is roughly "metres driven" minus penalties.</p>
-      <p class="small"><code>team/reward.py</code> gets a <code>RewardContext</code> with: progress, speed, lateral, half_width, heading_err, off_track, flipped, wall_contact, car_contact, lap_completed, lap_time, action, prev_action, dt. Pure JAX, runs inside <code>vmap</code>.</p>
+      <p class="small">The default reward is distance gained along the centerline each step, minus small penalties for jerky inputs and wall contact, and a large penalty for leaving the track or rolling over. At 15 m/s that is about 0.3 per step, so an episode's reward is roughly metres driven.</p>
     </div>
     <div>
-      <div class="card red"><h3>The judge never calls it</h3><p>Reward is training-time only. Lap time is what counts. A reward that is easy to collect without lapping faster will be collected.</p></div>
+      <div class="card red"><h3>Reward hacking</h3><p>Reward is training-time only; the judge never calls it. Lap time is what counts. A reward that is easy to collect without lapping faster will be collected.</p></div>
       <div class="card"><h3>Common shaping ideas</h3><ul><li>speed bonus to break slow-and-safe plateaus</li><li>lap bonus to value finishing</li><li>heading-error penalty for cleaner lines</li><li>stronger wall penalty before collision mode</li></ul></div>
     </div>
   </div>
