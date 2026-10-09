@@ -226,19 +226,15 @@
   <aside class="notes">Emphasise that the judge uses its own copy of rlracing; modifying the platform locally cannot change the judge's physics, and will break the observation-version check.</aside>
 </section>
 
-<section>
-  <h2>Scoring</h2>
-  <video data-autoplay loop muted playsinline preload="auto" src="videos/ScoringRule.mp4" poster="posters/ScoringRule.png" style="max-height: 800px; object-fit: contain;"></video>
+<section class="full-video">
+  <video data-autoplay loop muted playsinline preload="auto" src="videos/ScoringRule.mp4" poster="posters/ScoringRule.png"></video>
   <img class="print-only" src="posters/ScoringRule.png" alt="Scoring rule" />
-  <p class="caption">Leaderboard total = sum of best laps over the stage's tracks. Lower is better. A track without a lap adds 999 s. The best submission per team is kept.</p>
   <aside class="notes">A single DNF track costs 999 s, which is more than any lap-time gain elsewhere. Reliability on every track beats brilliance on one.</aside>
 </section>
 
-<section>
-  <h2>What ends an episode</h2>
-  <video data-autoplay loop muted playsinline preload="auto" src="videos/DQRules.mp4" poster="posters/DQRules.png" style="max-height: 800px; object-fit: contain;"></video>
+<section class="full-video">
+  <video data-autoplay loop muted playsinline preload="auto" src="videos/DQRules.mp4" poster="posters/DQRules.png"></video>
   <img class="print-only" src="posters/DQRules.png" alt="DQ rules" />
-  <p class="caption">Four checks, fixed by the platform: off track beyond half-width + 0.5 m, rolled over (up-axis z &lt; 0.3), faster than 60 m/s, or any non-finite state. Your config can change these numbers for training; the judge ignores your values.</p>
   <aside class="notes">Walls are physical, so "off track" mostly happens by launching over a wall after a collision. Rolling over is the common DQ for cars tuned with a high centre of mass and soft suspension.</aside>
 </section>
 
