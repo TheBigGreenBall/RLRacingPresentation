@@ -1,15 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 830 180" width="830" height="180" role="img" aria-label="RL Racing League">
-  <!-- Lockup for dark backgrounds. Transparent. Swap the two fills to re-colour. -->
-  <g transform="translate(150 30) skewX(-14)" fill="#e10600">
-    <path d="M -16 0 H -122 L -104 22 H -16 Z"/>
-    <path d="M -16 34 H -94 L -78 54 H -16 Z"/>
-    <path d="M -16 66 H -70 L -55 84 H -16 Z"/>
-    <path fill-rule="evenodd" d="M0 0 H76 C112 0 130 16 130 40 C130 60 118 72 100 78 L140 120 H92 L58 80 H42 V120 H0 Z
-      M42 30 V52 H76 C88 52 92 47 92 41 C92 35 88 30 76 30 Z"/>
-    <path d="M150 0 H192 V84 H312 L272 120 H150 Z"/>
-  </g>
-  <g transform="translate(505 30) skewX(-14)" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-weight="800">
-    <text x="0" y="66" font-size="78" letter-spacing="-2" fill="#ececea">RACING</text>
-    <text x="3" y="118" font-size="40" letter-spacing="7" fill="#e10600">LEAGUE</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 180" width="720" height="180" role="img" aria-label="RL Racing League">
+  <!-- Lockup for dark backgrounds. Transparent. RACING starts in the L's corner above the foot and runs past it; LEAGUE sits on the baseline, right-aligned under the G. -->
+  <g transform="translate(150 30) skewX(-14)">
+    <g fill="#e10600">
+      <path d="M -16 0 H -122 L -104 22 H -16 Z"/>
+      <path d="M -16 34 H -94 L -78 54 H -16 Z"/>
+      <path d="M -16 66 H -70 L -55 84 H -16 Z"/>
+      <path fill-rule="evenodd" d="M0 0 H76 C112 0 130 16 130 40 C130 60 118 72 100 78 L140 120 H92 L58 80 H42 V120 H0 Z
+        M42 30 V52 H76 C88 52 92 47 92 41 C92 35 88 30 76 30 Z"/>
+      <path d="M150 0 H192 V84 H305 L265 120 H150 Z"/>
+    </g>
+    <g font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-weight="800" text-anchor="end">
+      <text x="560" y="72" font-size="94" letter-spacing="-2" fill="#ececea">RACING</text>
+      <text x="560" y="120" font-size="50" letter-spacing="4" fill="#e10600">LEAGUE</text>
+    </g>
   </g>
 </svg>

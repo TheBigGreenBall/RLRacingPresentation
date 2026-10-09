@@ -11,7 +11,7 @@ lives in this directory.
 | 3D car + observation scene | three.js (vanilla ES modules) | `car3d.html`, `three/*.js`; embedded in the deck as iframes |
 | Real platform data | exported from the hackathon repo | `scripts/export_assets.py` -> `public/data/*.json` |
 | Shared colours / fonts | `theme/theme.ts` (Remotion) and `theme/theme.css` (deck + 3D page) |
-| Logo | copied from the hackathon repo `docs/assets/` | `public/brand/logo.svg` (title slide), `public/brand/logo-mark.svg` (favicon) |
+| Logo | copied from the hackathon repo `rlracing/dashboard/static/brand/` | `public/brand/logo.svg` (title slide), `public/brand/logo-mark.svg` (favicon) |
 
 ## Run it
 
