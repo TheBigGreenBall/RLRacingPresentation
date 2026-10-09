@@ -29,6 +29,7 @@ async function main() {
   const showPanel = showHud && params.get("panel") !== "0";
   panel.el.style.display = showPanel ? "" : "none";
   if (!showHud) document.body.classList.add("no-hud");
+  if (params.get("info") === "0") document.body.classList.add("no-info"); // keep the 3D labels, drop the text overlay
 
   const tracks = tracksJson.tracks.map((t) => new TrackData(t));
   let trackIdx = Math.max(0, tracks.findIndex((t) => t.name === (params.get("track") || "serpent")));

@@ -38,7 +38,7 @@ the path in `package.json` if the repo moves.
 ## The 3D scene (`car3d.html`)
 
 URL parameters: `track=oval|loop|serpent`, `camera=chase|overhead|free`, `panel=0|1` (observation readout),
-`block=0..7` (highlight one observation block), `hud=0` (clean scene for backgrounds), `speed=1.5`.
+`block=0..7` (highlight one observation block), `info=0` (hide the text overlay), `hud=0` (clean scene for backgrounds), `speed=1.5`.
 Keys: `1`-`8` highlight a block, `0` all, `c` cycle camera, `t` cycle track, `p` toggle panel, space pause.
 The deck drives it with `postMessage({type: "rlr", block, camera, visible})` from `src/main.ts`; fragments on
 the "block by block" slide carry `data-obs-block`.
