@@ -80,3 +80,5 @@
 /* print-pdf: swap videos and iframes for posters */
 .reveal.print-pdf-mode video, html.print-pdf .reveal video, html.print-pdf .reveal iframe.scene { display: none !important; }
 html.print-pdf .reveal .print-only { display: block !important; width: 100%; border-radius: 16px; }
+html.print-pdf .reveal .print-only.print-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 0; z-index: 0; }
+html.print-pdf .reveal .overlay-box { z-index: 1; }

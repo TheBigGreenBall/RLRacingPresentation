@@ -397,7 +397,7 @@ rlr render runs/replays/*.npz --camera chase      # watch what it actually did
       <div class="callout">Walls are 4 × 0.5 × 1 m boxes every 3.2 m along both edges of the track, 600 of them in the model. They are real: hit one and you bounce.</div>
     </div>
     <iframe class="scene" src="car3d.html?hud=0&camera=free&track=oval" loading="lazy" title="3D car"></iframe>
-    <img class="print-only" src="posters/RLLoop.png" alt="" style="display:none" />
+    <img class="print-only" src="posters/car3d_car.png" alt="The car in 3D" />
   </div>
   <aside class="notes">The 3D view is the actual geometry: dimensions come from the same formulas that build the MuJoCo model. Drag to orbit.</aside>
 </section>
@@ -426,6 +426,7 @@ rlr render runs/replays/*.npz --camera chase      # watch what it actually did
 </section>
 
 <section data-background-iframe="car3d.html?panel=0&camera=overhead&track=serpent" data-background-interactive data-obs-block="">
+  <img class="print-only print-bg" src="posters/car3d_overhead.png" alt="Overhead view of the car with its lookahead points" />
   <div class="overlay-box">
     <h2>What the car sees, block by block</h2>
     <p class="muted small" style="margin: 0 0 0.4em;">Step forward to light up one block at a time in the live scene.</p>
@@ -447,6 +448,7 @@ rlr render runs/replays/*.npz --camera chase      # watch what it actually did
 <section>
   <h2>Live readout</h2>
   <iframe class="scene" style="height: 86%;" src="car3d.html?panel=1&camera=chase&track=loop" loading="lazy" title="3D observation readout"></iframe>
+  <img class="print-only" src="posters/car3d_readout.png" alt="Live observation readout" />
   <aside class="notes">Right panel shows the scaled values the policy receives, grouped by block, updating live. Point out that every number stays within about ±1, that lookahead x grows with distance, and that opponent slot 3 stays zero because only two other cars exist.</aside>
 </section>
 
