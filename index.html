@@ -141,25 +141,6 @@
 </section>
 
 <section>
-  <h2>Why thousands of cars at once</h2>
-  <div class="two">
-    <div>
-      <ul>
-        <li>One compiled MuJoCo model holds the ground, <b>600 wall boxes</b> and the car. Tracks are just data: a 400-point centerline and a half-width profile.</li>
-        <li>Placing walls for a different track is a different set of model parameters, not a new compile, so one model serves <b>4096 environments on 256 tracks</b> in one vectorised step.</li>
-        <li>Physics at 200 Hz, control at 50 Hz, about 80k agent steps per second across the four T4s.</li>
-        <li>The first run of a new shape JIT-compiles for 2 to 4 minutes; the cache under <code>runs/.jax_cache</code> makes later runs instant.</li>
-      </ul>
-    </div>
-    <div>
-      <div class="formula"><span class="dim">per PPO iteration</span><br>4096 envs × 20 steps = 81 920 transitions<br><span class="dim">per 60 M-step run</span><br>≈ 730 iterations, 12 evaluation checkpoints, ~13 min</div>
-      <div class="callout">Constraint to remember: <code>batch_size × num_minibatches</code> must divide <code>num_envs</code>.</div>
-    </div>
-  </div>
-  <aside class="notes">This slide explains why the platform is built the way it is: everything is shaped so that a single compiled model can serve many tracks. Teams only need to know the consequence: huge batches, fast training, a one-time compile cost.</aside>
-</section>
-
-<section>
   <h2>Exploration versus exploitation</h2>
   <div class="two">
     <div>
