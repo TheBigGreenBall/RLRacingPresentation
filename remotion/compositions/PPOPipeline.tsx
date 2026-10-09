@@ -64,7 +64,7 @@ export const PPOPipeline: React.FC = () => {
               </g>
             );
           })()}
-          <text x={200} y={298} fontSize={18} fill={theme.textMuted} textAnchor="middle" fontFamily={theme.mono}>env steps → 60 M (~13 min on an A10G)</text>
+          <text x={200} y={298} fontSize={18} fill={theme.textMuted} textAnchor="middle" fontFamily={theme.mono}>env steps → 60 M (~13 min on 4× T4)</text>
           <text x={32} y={40} fontSize={18} fill={theme.textMuted} fontFamily={theme.mono}>episode reward</text>
         </svg>
         <div><Chip color={theme.good} mono>rlr evaluate runs/run1/final</Chip></div>

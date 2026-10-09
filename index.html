@@ -14,7 +14,7 @@
   <div class="kicker">Rules briefing</div>
   <h1>RL Racing League</h1>
   <p class="sub">Train a reinforcement-learning driver for a simulated car. Race it on tracks nobody has seen. The simulator that trains it also judges it.</p>
-  <div class="chips"><span class="chip">MuJoCo MJX</span><span class="chip">Brax PPO</span><span class="chip">one GPU per team</span><span class="chip red">lap time is the score</span></div>
+  <div class="chips"><span class="chip">MuJoCo MJX</span><span class="chip">Brax PPO</span><span class="chip">4 GPUs per team</span><span class="chip red">lap time is the score</span></div>
   <aside class="notes">Welcome. This deck covers four things: what the league is, enough RL vocabulary to follow along, the contest rules, and the car with its observation vector. The background is the actual car model driving a real benchmark track, rendered live.</aside>
 </section>
 
@@ -25,7 +25,7 @@
       <ul>
         <li>A <b>driver</b>: a neural-network policy that reads 60 numbers 50 times a second and outputs steering and throttle.</li>
         <li>A <b>car setup</b>: 13 tunable physical parameters (wheelbase, tyre friction, torque, ...) that travel with your submission.</li>
-        <li>Everything runs in <b>MJX</b>, MuJoCo on JAX: thousands of cars simulate in parallel on one GPU, so a training run takes minutes.</li>
+        <li>Everything runs in <b>MJX</b>, MuJoCo on JAX: thousands of cars simulate in parallel on the GPUs, so a training run takes minutes.</li>
         <li>You edit one directory, <code>team/</code>. The platform, the physics and the judge are frozen.</li>
       </ul>
       <div class="callout green">Local numbers transfer: <code>rlr evaluate</code> and the organizer judge run the same code on the same tracks.</div>
@@ -70,7 +70,7 @@
       </ul>
     </div>
     <div>
-      <div class="card red"><h3>Compute per team</h3><p>One g5.xlarge (A10G). Expect <b>≥100k environment steps per second</b> with physical walls. The 60 M-step baseline takes about 13 minutes. Four cars in one world cost about a quarter of the solo throughput.</p></div>
+      <div class="card red"><h3>Compute per team</h3><p>One g4dn.12xlarge per team: <b>4 × NVIDIA T4</b> GPUs, 48 vCPUs. Expect about <b>80k environment steps per second</b> solo with physical walls; the 60 M-step baseline takes about 13 minutes. Four cars in one world drop that to roughly 18k steps per second.</p></div>
       <div class="card"><h3>Keep the poll loop in mind</h3><p>The organizer judge keeps running overnight, so late Stage 1 submissions still score.</p></div>
     </div>
   </div>
@@ -147,7 +147,7 @@
       <ul>
         <li>One compiled MuJoCo model holds the ground, <b>600 wall boxes</b> and the car. Tracks are just data: a 400-point centerline and a half-width profile.</li>
         <li>Placing walls for a different track is a different set of model parameters, not a new compile, so one model serves <b>4096 environments on 256 tracks</b> in one vectorised step.</li>
-        <li>Physics at 200 Hz, control at 50 Hz, about 100k agent steps per second on an A10G.</li>
+        <li>Physics at 200 Hz, control at 50 Hz, about 80k agent steps per second across the four T4s.</li>
         <li>The first run of a new shape JIT-compiles for 2 to 4 minutes; the cache under <code>runs/.jax_cache</code> makes later runs instant.</li>
       </ul>
     </div>
