@@ -454,10 +454,33 @@ rlr render runs/replays/*.npz --camera chase      # watch what it actually did
 <section>
   <h2>Cheat sheet</h2>
   <div class="cards">
-    <div class="card"><h3>Scoring</h3><p>Solo, 180 s per track, best lap. No lap = 999 s. Total = sum over tracks, lower wins. Best submission per team.</p></div>
-    <div class="card red"><h3>DQ</h3><p>Off track &gt; half-width + 0.5 m, rolled over, &gt; 60 m/s, non-finite. Backward line crossing voids the lap.</p></div>
-    <div class="card yellow"><h3>Stages</h3><p>1: benchmark tracks + ghost race on serpent. Overnight: tune and retrain. 2: hidden tracks, ghost primary, collision finale (3 laps, 240 s).</p></div>
-    <div class="card green"><h3>Yours to change</h3><p><code>team/config.yaml</code>, <code>team/reward.py</code>, <code>team/policy.py</code>. 13 car parameters, clamped. Observation v2 and physics are frozen.</p></div>
+    <div class="card"><h3>Scoring</h3><ul>
+      <li>Solo run, 180 s per track</li>
+      <li>Score per track = best lap</li>
+      <li>No lap = 999 s</li>
+      <li>Total = sum over tracks, lower wins</li>
+      <li>Best submission per team counts</li>
+    </ul></div>
+    <div class="card red"><h3>DQ</h3><ul>
+      <li>Off track &gt; half-width + 0.5 m</li>
+      <li>Rolled over</li>
+      <li>Faster than 60 m/s</li>
+      <li>Non-finite state</li>
+      <li>Backward line crossing voids the lap</li>
+    </ul></div>
+    <div class="card yellow"><h3>Stages</h3><ul>
+      <li>Stage 1: benchmark tracks, then ghost race on serpent</li>
+      <li>Overnight: tune the car and retrain</li>
+      <li>Stage 2: hidden tracks, ghost mode is the primary score</li>
+      <li>Finale: collision race, 3 laps, 240 s</li>
+    </ul></div>
+    <div class="card green"><h3>Yours to change</h3><ul>
+      <li><code>team/config.yaml</code></li>
+      <li><code>team/reward.py</code></li>
+      <li><code>team/policy.py</code></li>
+      <li>13 car parameters, clamped</li>
+      <li>Observation v2 and physics are frozen</li>
+    </ul></div>
   </div>
   <div class="chips" style="margin-top: 1em;"><span class="chip mono">rlr train</span><span class="chip mono">rlr evaluate runs/run1/final</span><span class="chip mono">rlr package runs/run1</span><span class="chip mono">rlr submit --team T --stage 1</span><span class="chip mono">rlr dashboard</span></div>
   <p class="muted small" style="margin-top: 1em;">Read <code>docs/PARTICIPANTS.md</code> for the full observation table, config reference and Docker steps. Good luck, and watch the first corner.</p>
