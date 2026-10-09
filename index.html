@@ -430,15 +430,15 @@ rlr render runs/replays/*.npz --camera chase      # watch what it actually did
   <div class="overlay-box">
     <h2>What the car sees</h2>
     <ul>
-      <li class="fragment" data-obs-block="0" data-camera="overhead"><span class="sw" style="background: var(--rlr-b0)"></span>Where the track goes: centerline points ahead, in the car's own frame.</li>
-      <li class="fragment" data-obs-block="1"><span class="sw" style="background: var(--rlr-b1)"></span>How wide the track is at each of those points.</li>
-      <li class="fragment" data-obs-block="2" data-camera="chase"><span class="sw" style="background: var(--rlr-b2)"></span>Where the car sits on the track and which way it points.</li>
-      <li class="fragment" data-obs-block="3"><span class="sw" style="background: var(--rlr-b3)"></span>How fast it is moving, forward and sideways.</li>
-      <li class="fragment" data-obs-block="4"><span class="sw" style="background: var(--rlr-b4)"></span>How fast it is turning.</li>
-      <li class="fragment" data-obs-block="5"><span class="sw" style="background: var(--rlr-b5)"></span>What the wheels are doing: spin and steering angle.</li>
-      <li class="fragment" data-obs-block="6"><span class="sw" style="background: var(--rlr-b6)"></span>What it commanded last step.</li>
-      <li class="fragment" data-obs-block="7" data-camera="overhead"><span class="sw" style="background: var(--rlr-b7)"></span>The nearest other cars: where they are and how they move relative to you.</li>
-      <li class="fragment" data-obs-block="">All together.</li>
+      <li class="fragment" data-obs-block="0" data-camera="overhead"><span class="sw" style="background: var(--rlr-b0)"></span><b>lookahead_xy</b>: centerline points, varying m ahead</li>
+      <li class="fragment" data-obs-block="1"><span class="sw" style="background: var(--rlr-b1)"></span><b>lookahead_half_width</b>: track half-width at those points</li>
+      <li class="fragment" data-obs-block="2" data-camera="chase"><span class="sw" style="background: var(--rlr-b2)"></span><b>lateral_heading</b>: offset from centerline, heading error</li>
+      <li class="fragment" data-obs-block="3"><span class="sw" style="background: var(--rlr-b3)"></span><b>lin_vel</b>: body-frame velocity</li>
+      <li class="fragment" data-obs-block="4"><span class="sw" style="background: var(--rlr-b4)"></span><b>ang_vel</b>: roll, pitch, yaw rates</li>
+      <li class="fragment" data-obs-block="5"><span class="sw" style="background: var(--rlr-b5)"></span><b>wheels_steer</b>: wheel spins, steer angle</li>
+      <li class="fragment" data-obs-block="6"><span class="sw" style="background: var(--rlr-b6)"></span><b>prev_action</b>: last steer, throttle</li>
+      <li class="fragment" data-obs-block="7" data-camera="overhead"><span class="sw" style="background: var(--rlr-b7)"></span><b>opponents</b>: nearest cars, relative position and velocity</li>
+      <li class="fragment" data-obs-block="">all together</li>
     </ul>
   </div>
   <aside class="notes">Step through the fragments: each one highlights a block in the live scene and dims the rest. The scene is interactive; click into it to orbit or press keys.</aside>
