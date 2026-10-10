@@ -136,3 +136,5 @@
 .rl-loop { width: 100%; }
 .rl-loop svg { display: block; width: 100%; height: auto; box-shadow: 0 30px 80px -40px rgba(0,0,0,.9); border-radius: 24px; }
 .rl-loop .rl-card, .rl-loop .rl-arrow, .rl-loop .rl-in { opacity: 0; }
+/* center the RL loop scene against the taller text column beside it */
+.two > .rl-loop, .two > div:has(> .rl-loop) { align-self: stretch; display: flex; flex-direction: column; justify-content: center; }
