@@ -37,8 +37,19 @@
   <aside class="notes">Two deliverables: a policy and a car configuration. Stress that the evaluation tool teams run locally is literally the judge, so there is no surprise at scoring time.</aside>
 </section>
 
-<section class="full-video">
-  <video data-autoplay loop muted playsinline preload="auto" src="videos/EventTimeline.mp4" poster="posters/EventTimeline.png"></video>
+<section class="anim" data-anim="timeline">
+  <div class="anim-stage">
+    <div class="a-title">How the league runs</div>
+    <div class="a-sub">Three phases, one engine: the same MJX simulator trains, judges and replays every submission.</div>
+    <div class="tl-line"></div>
+    <div class="tl-dot" data-i="0" style="left: 420px; background: var(--rlr-accent2);"></div>
+    <div class="tl-dot" data-i="1" style="left: 960px; background: var(--rlr-warn);"></div>
+    <div class="tl-dot" data-i="2" style="left: 1500px; background: var(--rlr-accent);"></div>
+    <div class="a-card tl-card blue" style="left: 150px;"><div class="tl-head"><span class="a-name">Stage 1</span><span class="chip blue">2 hours</span></div><ul><li>Train a driver with the baseline car</li><li>Score: fastest lap on the 3 public tracks (oval, loop, serpent)</li><li>Then: ghost-mode grid race on serpent</li></ul></div>
+    <div class="a-card tl-card yellow" style="left: 690px;"><div class="tl-head"><span class="a-name">Overnight</span><span class="chip yellow">tune and retrain</span></div><ul><li>Tune the 13 clamped car parameters</li><li>Train on more and harder generated tracks</li><li>Optional: self-play against frozen opponents</li></ul></div>
+    <div class="a-card tl-card red" style="left: 1230px;"><div class="tl-head"><span class="a-name">Stage 2</span><span class="chip red">hidden tracks</span></div><ul><li>Tracks you have never seen (easy, medium, hard)</li><li>Ghost mode is the primary score</li><li>Collision race is the finale: grid start, first to 3 laps</li></ul></div>
+    <div class="a-footer">Submit early and often: the leaderboard keeps each team's best submission in every stage.</div>
+  </div>
   <aside class="notes">Three phases. Stage 1 is a two-hour sprint on public tracks. Overnight is for tuning and longer training. Stage 2 moves to hidden tracks and adds the multi-car finale.</aside>
 </section>
 

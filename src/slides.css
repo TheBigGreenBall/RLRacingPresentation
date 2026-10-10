@@ -138,3 +138,17 @@
 .rl-loop .rl-card, .rl-loop .rl-arrow, .rl-loop .rl-in { opacity: 0; }
 /* center the RL loop scene against the taller text column beside it */
 .two > .rl-loop, .two > div:has(> .rl-loop) { align-self: stretch; display: flex; flex-direction: column; justify-content: center; }
+
+/* event timeline */
+.tl-line { position: absolute; left: 150px; top: 326px; width: 1620px; height: 10px; border-radius: 5px; background: var(--rlr-panel-border); transform-origin: left center; transform: scaleX(0); }
+.tl-dot { position: absolute; top: 309px; width: 44px; height: 44px; margin-left: -22px; border-radius: 50%; border: 6px solid var(--rlr-bg); box-sizing: border-box; opacity: 0; }
+.tl-card { top: 400px; width: 500px; height: 520px; }
+.anim-stage .a-card.blue { border-top-color: var(--rlr-accent2); }
+.anim-stage .a-card.yellow { border-top-color: var(--rlr-warn); }
+.tl-card .tl-head { display: flex; align-items: baseline; gap: 16px; }
+.tl-card .a-name { font-size: 44px; font-weight: 800; }
+.tl-card .chip { opacity: 1; font-size: 22px; }
+.anim-stage .chip.yellow { border-color: var(--rlr-warn); color: var(--rlr-warn); background: rgba(255,200,87,.1); }
+.anim-stage .chip.blue { border-color: var(--rlr-accent2); color: var(--rlr-accent2); background: rgba(54,195,255,.1); }
+.tl-card ul { margin: 22px 0 0 28px; padding: 0; font-size: 28px; line-height: 1.35; }
+.tl-card li { margin-bottom: 16px; opacity: 0; }
