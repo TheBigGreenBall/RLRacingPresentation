@@ -53,49 +53,6 @@
   <aside class="notes">Three phases. Stage 1 is a two-hour sprint on public tracks. Overnight is for tuning and longer training. Stage 2 moves to hidden tracks and adds the multi-car finale.</aside>
 </section>
 
-<section>
-  <h2>Stage 1 <span class="muted">(2 hours)</span></h2>
-  <div class="cards">
-    <div class="card"><h3>Goal</h3><p>Fastest lap on the three public <b>benchmark</b> tracks. Everyone drives the same baseline car.</p></div>
-    <div class="card"><h3>Tracks</h3><p><b>oval</b> 449 m, constant 10 m half-width. <b>loop</b> 285 m, gentle corners. <b>serpent</b> 382 m, 6.4 to 9.1 m half-width, corners down to 12.5 m radius.</p></div>
-    <div class="card green"><h3>Workflow</h3><p><code>rlr train</code> → <code>rlr evaluate</code> → <code>rlr package</code> → <code>rlr submit --stage 1</code>. The baseline config laps in about 5 minutes of training.</p></div>
-    <div class="card yellow"><h3>Finale</h3><p>A <b>ghost-mode</b> grid race on serpent: everyone's solo run replayed together, so you can see who is quickest where.</p></div>
-  </div>
-  <div class="callout">Submit early. Each new zip is judged in about 40 s of wall clock, and the leaderboard keeps your best.</div>
-  <aside class="notes">The three tracks are public and ship in the image, so teams can overfit to them if they wish. That is fine for Stage 1; it stops working in Stage 2.</aside>
-</section>
-
-<section>
-  <h2>Overnight <span class="muted">(tune and retrain)</span></h2>
-  <div class="two">
-    <div>
-      <ul>
-        <li><b>Tune the car.</b> 13 scalar parameters plus the wheel collision shape. Values are never rejected, only clamped into the allowed ranges.</li>
-        <li><b>Train on more tracks.</b> The generator makes unlimited easy, medium and hard circuits from a seed; the default mix is 256 tracks.</li>
-        <li><b>Shape the reward.</b> <code>team/reward.py</code> is yours. Progress per step is the default signal.</li>
-        <li><b>Optional self-play.</b> A <code>race:</code> block puts frozen opponents in the world so your policy learns the opponent slots of the observation.</li>
-      </ul>
-    </div>
-    <div>
-      <div class="card red"><h3>Compute per team</h3><p>One g4dn.12xlarge per team: <b>4 × NVIDIA T4</b> GPUs, 48 vCPUs. Expect about <b>80k environment steps per second</b> solo with physical walls; the 60 M-step baseline takes about 13 minutes. Four cars in one world drop that to roughly 18k steps per second.</p></div>
-      <div class="card"><h3>Keep the poll loop in mind</h3><p>The organizer judge keeps running overnight, so late Stage 1 submissions still score.</p></div>
-    </div>
-  </div>
-  <aside class="notes">Overnight is where most of the gains come from: longer training, harder generated tracks, and a car setup that fits the driving style the policy learned.</aside>
-</section>
-
-<section>
-  <h2>Stage 2 <span class="muted">(hidden tracks)</span></h2>
-  <div class="cards">
-    <div class="card"><h3>Hidden tracks</h3><p>Generated from the same generator with a secret seed, two per difficulty preset, plus hand-tuned circuits. Expect hairpins and chicanes you have not seen. Corners are never tighter than about 10 m radius and half-widths never under 6 m.</p></div>
-    <div class="card yellow"><h3>Primary score: ghost mode</h3><p>Same solo judging as Stage 1, summed over the hidden tracks, replayed together as a ghost race on the hardest one.</p></div>
-    <div class="card red"><h3>Finale: collision mode</h3><p>Every submission in one world with real car-to-car contact. Grid start, 240 s, first to <b>3 laps</b> wins.</p></div>
-  </div>
-  <div class="callout">Generalisation is the whole game in Stage 2. A policy that memorised the oval will meet its first hairpin on live television.</div>
-  <aside class="notes">Hidden tracks come from the same distribution as the training generator, so training on a wide mix of generated tracks is the intended path to a good Stage 2 result.</aside>
-</section>
-
-<!-- ===================================================== 2. RL BASICS -->
 <section class="divider">
   <div class="num">02</div>
   <h1>Reinforcement learning<br>in five minutes</h1>
