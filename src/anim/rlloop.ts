@@ -27,11 +27,9 @@ function scene(): string {
   // the dashed centerline of the mini track, as a path so the car can follow it
   const track = "M 1280 620 A 150 80 0 1 1 1580 620 A 150 80 0 1 1 1280 620 Z";
   return `
-<svg viewBox="0 150 1920 860" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The reinforcement learning loop">
+<svg viewBox="170 290 1580 550" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The reinforcement learning loop">
   <defs><radialGradient id="rl-bg" cx="30%" cy="20%" r="80%"><stop offset="0" stop-color="var(--rlr-bg-soft)"/><stop offset="1" stop-color="var(--rlr-bg)"/></radialGradient></defs>
-  <rect y="150" width="1920" height="860" rx="24" fill="url(#rl-bg)"/>
-  <text class="rl-in" x="90" y="240" font-size="56" font-weight="800" font-family="${font}" fill="var(--rlr-text)">The reinforcement learning loop</text>
-  <text class="rl-in" x="90" y="288" font-size="28" font-family="${font}" fill="var(--rlr-text-muted)">At 50 Hz the driver sees an observation, picks an action, and the simulator answers with the next observation and a reward.</text>
+  <rect x="170" y="290" width="1580" height="550" rx="24" fill="url(#rl-bg)"/>
 
   <g class="rl-card">
     ${card(210, "var(--rlr-accent)")}
@@ -67,7 +65,6 @@ function scene(): string {
     <circle class="rl-pulse-b" cx="1130" cy="660" r="13" fill="#fff" opacity="0"/>
   </g>
   <text class="rl-step rl-in" x="960" y="595" font-size="30" font-family="${mono}" fill="var(--rlr-text-muted)" text-anchor="middle">step t = 0</text>
-  <text class="rl-in" x="960" y="960" font-size="26" font-family="${font}" fill="var(--rlr-text-muted)" text-anchor="middle">One episode = up to 60 s of driving (3000 steps). The goal is to maximise the sum of rewards; the league scores lap time.</text>
 </svg>`;
 }
 
