@@ -18,7 +18,7 @@
   <aside class="notes">Welcome. This deck covers four things: what the league is, enough RL vocabulary to follow along, the contest rules, and the car with its observation vector. The background is the actual car model driving a real benchmark track, rendered live.</aside>
 </section>
 
-<section>
+<section data-anim="rlloop">
   <h2>What you are building</h2>
   <div class="two">
     <div>
@@ -30,8 +30,8 @@
       </ul>
       <div class="callout green">Local numbers transfer: <code>rlr evaluate</code> and the organizer judge run the same code on the same tracks.</div>
     </div>
-    <div class="vid-wrap">
-      <video data-autoplay loop muted playsinline preload="auto" src="videos/RLLoop.mp4" poster="posters/RLLoop.png"></video>
+    <div>
+      <div class="rl-loop"></div>
       <div class="caption">The loop every driver lives in: observation in, action out, reward back.</div>
     </div>
   </div>
@@ -93,12 +93,10 @@
   <aside class="notes">Section two: RL basics. Keep it practical and tied to the racing setting.</aside>
 </section>
 
-<section>
+<section data-anim="rlloop">
   <h2>Agent, environment, observation, action, reward</h2>
   <div class="two wide-left">
-    <div class="vid-wrap">
-      <video data-autoplay loop muted playsinline preload="auto" src="videos/RLLoop.mp4" poster="posters/RLLoop.png"></video>
-    </div>
+    <div class="rl-loop"></div>
     <div class="small">
       <p><b>Agent.</b> The driver: a policy π that maps an observation to an action.</p>
       <p><b>Environment.</b> The MJX world: car, track, walls, physics. It owns the true state.</p>

@@ -2,11 +2,13 @@ import type { SlideAnim } from "./types";
 import { mountScoring } from "./scoring";
 import { mountDQ } from "./dq";
 import { mountObsBar } from "./obsbar";
+import { mountRLLoop } from "./rlloop";
 
 const MOUNTS: Record<string, (root: HTMLElement) => SlideAnim> = {
   scoring: mountScoring,
   dq: mountDQ,
   obsbar: mountObsBar,
+  rlloop: mountRLLoop,
 };
 
 /** Mount every <section data-anim="..."> once and return a lookup by section. */

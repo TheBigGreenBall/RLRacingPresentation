@@ -131,3 +131,8 @@
 .obs-row .obs-div { font-family: var(--rlr-mono); color: var(--rlr-text-muted); font-size: 22px; }
 .obs-lookahead { position: absolute; left: 90px; top: 905px; font-size: 25px; color: var(--rlr-text-muted); white-space: nowrap; opacity: 0; }
 .obs-lookahead .mono { color: var(--rlr-text); }
+
+/* RL loop scene (anime.js), scales to its column */
+.rl-loop { width: 100%; }
+.rl-loop svg { display: block; width: 100%; height: auto; box-shadow: 0 30px 80px -40px rgba(0,0,0,.9); border-radius: 24px; }
+.rl-loop .rl-card, .rl-loop .rl-arrow, .rl-loop .rl-in { opacity: 0; }
