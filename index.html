@@ -136,10 +136,44 @@
   <aside class="notes">Gamma 0.99 gives a time horizon of about 100 steps. Mention that increasing it is possible in config but makes value estimation noisier.</aside>
 </section>
 
-<section>
-  <h2>PPO at a high level</h2>
-  <video data-autoplay loop muted playsinline preload="auto" src="videos/PPOPipeline.mp4" poster="posters/PPOPipeline.png" style="max-height: 760px; object-fit: contain;"></video>
-  <p class="caption">Proximal Policy Optimization: collect a batch of experience from every environment, estimate how much better than expected each action was (the advantage), then nudge the policy toward better actions while clipping how far it can move in one update.</p>
+<section class="anim" data-anim="ppo">
+  <div class="anim-stage">
+    <div class="a-title">How PPO trains the driver</div>
+    <div class="a-sub">Collect experience from thousands of simulated cars at once, estimate how much better than expected each action was, then take a few careful gradient steps. Repeat.</div>
+
+    <div class="a-card ppo-card blue" style="left: 100px; top: 300px; width: 480px; height: 520px;">
+      <div class="a-name">4096 parallel envs</div><div class="a-text">one compiled MJX model, 256 tracks, vmapped on the GPU</div>
+      <svg class="ppo-grid" viewBox="0 0 340 340" width="340" height="340"></svg>
+    </div>
+    <div class="a-card ppo-card yellow" style="left: 700px; top: 300px; width: 520px; height: 230px;">
+      <div class="a-name">Rollout buffer</div>
+      <div class="a-text">20 steps × 4096 envs = <b>81 920</b> transitions per iteration: (obs, action, reward, value)</div>
+      <div class="chips"><span class="chip yellow mono">GAE: γ = 0.99, λ = 0.95</span></div>
+    </div>
+    <div class="a-card ppo-card red" style="left: 700px; top: 590px; width: 520px; height: 230px;">
+      <div class="a-name">Clipped policy update</div>
+      <div class="a-text">4 epochs × 4 minibatches of 1024. The ratio π<sub>new</sub>/π<sub>old</sub> is clipped to 1 ± 0.2 so no single update wrecks the driver.</div>
+      <div class="chips"><span class="chip red mono">lr 3e-4, entropy 1e-3</span></div>
+    </div>
+    <div class="a-card ppo-card green" style="left: 1340px; top: 300px; width: 480px; height: 520px;">
+      <div class="a-name">Checkpoints</div><div class="a-text">12 evaluations over 60 M steps; each one saves params.pkl + meta.json</div>
+      <svg viewBox="0 0 400 300" width="400" height="300" class="ppo-chart">
+        <line x1="20" y1="270" x2="390" y2="270" stroke="var(--rlr-panel-border)" stroke-width="3"/><line x1="20" y1="270" x2="20" y2="20" stroke="var(--rlr-panel-border)" stroke-width="3"/>
+        <path class="ppo-curve" d="" fill="none" stroke="var(--rlr-good)" stroke-width="5"/><g class="ppo-dots"></g>
+        <text x="200" y="298" font-size="18" fill="var(--rlr-text-muted)" text-anchor="middle" font-family="var(--rlr-mono)">env steps → 60 M (~13 min on 4× T4)</text>
+        <text x="32" y="40" font-size="18" fill="var(--rlr-text-muted)" font-family="var(--rlr-mono)">episode reward</text>
+      </svg>
+      <div class="chips"><span class="chip green mono">rlr evaluate runs/run1/final</span></div>
+    </div>
+
+    <svg class="ppo-overlay" viewBox="0 0 1920 1080" width="1920" height="1080">
+      <g class="ppo-arrow"><line x1="590" y1="420" x2="664" y2="420" stroke="var(--rlr-warn)" stroke-width="6" stroke-linecap="round" opacity="0.85"/><polygon points="690,420 664,406 664,434" fill="var(--rlr-warn)"/><circle class="ppo-pulse-a" cx="590" cy="420" r="12" fill="#fff" opacity="0"/></g>
+      <g class="ppo-arrow"><line x1="960" y1="540" x2="960" y2="562" stroke="var(--rlr-accent)" stroke-width="5" stroke-linecap="round" opacity="0.85"/><polygon points="960,580 948,560 972,560" fill="var(--rlr-accent)"/><circle class="ppo-pulse-b" cx="960" cy="540" r="11" fill="#fff" opacity="0"/></g>
+      <g class="ppo-arrow"><line x1="1230" y1="700" x2="1304" y2="700" stroke="var(--rlr-good)" stroke-width="6" stroke-linecap="round" opacity="0.85"/><polygon points="1330,700 1304,686 1304,714" fill="var(--rlr-good)"/><circle class="ppo-pulse-c" cx="1230" cy="700" r="12" fill="#fff" opacity="0"/></g>
+      <g class="ppo-return"><path class="ppo-return-path" d="M 960 830 C 960 900, 340 900, 340 830" fill="none" stroke="var(--rlr-text-muted)" stroke-width="4" stroke-dasharray="10 10"/><text x="650" y="920" font-size="24" fill="var(--rlr-text-muted)" text-anchor="middle" font-family="var(--rlr-font)">new policy drives the next rollout</text><circle class="ppo-pulse-d" r="11" fill="#fff" opacity="0"/></g>
+    </svg>
+    <div class="a-footer"><span class="mono">reward = progress − 0.05·Δaction² − 0.5·wall − 20·off_track − 20·flip</span> &nbsp; (team/reward.py, training only)</div>
+  </div>
   <aside class="notes">PPO is on-policy: the data comes from the current policy and is thrown away after a few epochs. The clipping ratio of 0.2 is what makes it stable enough to run unattended. One iteration is 20 steps on 4096 envs, then 4 epochs over 4 minibatches of 1024.</aside>
 </section>
 

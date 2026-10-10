@@ -152,3 +152,17 @@
 .anim-stage .chip.blue { border-color: var(--rlr-accent2); color: var(--rlr-accent2); background: rgba(54,195,255,.1); }
 .tl-card ul { margin: 22px 0 0 28px; padding: 0; font-size: 28px; line-height: 1.35; }
 .tl-card li { margin-bottom: 16px; opacity: 0; }
+
+/* PPO pipeline */
+.ppo-card .a-name { font-size: 34px; font-weight: 800; }
+.ppo-card .a-text { font-size: 24px; color: var(--rlr-text-muted); line-height: 1.35; margin-top: 6px; }
+.ppo-card .a-text b { color: var(--rlr-text); }
+.ppo-card .chips { margin-top: 12px; }
+.ppo-card .chip { opacity: 1; font-size: 22px; }
+.anim-stage .chip.green { border-color: var(--rlr-good); color: var(--rlr-good); background: rgba(61,220,151,.1); }
+.anim-stage .a-card.green { border-top-color: var(--rlr-good); }
+.ppo-grid { display: block; margin-top: 10px; }
+.ppo-chart { display: block; margin-top: 14px; }
+.ppo-overlay { position: absolute; left: 0; top: 0; pointer-events: none; }
+.ppo-arrow, .ppo-return { opacity: 0; }
+.ppo-dot { transform-box: fill-box; transform-origin: center; }

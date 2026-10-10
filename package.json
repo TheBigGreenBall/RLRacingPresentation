@@ -9,10 +9,8 @@
     "build": "vite build",
     "preview": "vite preview --port 4173 --strictPort",
     "export:assets": "JAX_PLATFORMS=cpu RLR_NO_JAX_CACHE=1 /Users/devichen/workplace/hackathon/src/CXBTRLRacingHackathon/.venv/bin/python scripts/export_assets.py",
-    "remotion:studio": "remotion studio remotion/index.ts",
     "remotion:ensure": "remotion browser ensure",
-    "render:videos": "bash scripts/render_videos.sh",
-    "check": "npm run export:assets && npm run render:videos && npm run build"
+    "check": "npm run export:assets && npm run build"
   },
   "dependencies": {
     "@remotion/cli": "4.0.534",

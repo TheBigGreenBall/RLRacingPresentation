@@ -15,5 +15,5 @@
     "isolatedModules": true,
     "types": ["vite/client"]
   },
-  "include": ["src", "three", "theme", "remotion"]
+  "include": ["src", "three", "theme"]
 }
