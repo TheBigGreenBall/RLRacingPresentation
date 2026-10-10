@@ -12,11 +12,11 @@
     "remotion:studio": "remotion studio remotion/index.ts",
     "remotion:ensure": "remotion browser ensure",
     "render:videos": "bash scripts/render_videos.sh",
-    "export:pdf": "node scripts/export_pdf.mjs",
     "check": "npm run export:assets && npm run render:videos && npm run build"
   },
   "dependencies": {
     "@remotion/cli": "4.0.534",
+    "animejs": "^4.5.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "remotion": "4.0.534",

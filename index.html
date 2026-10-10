@@ -32,7 +32,6 @@
     </div>
     <div class="vid-wrap">
       <video data-autoplay loop muted playsinline preload="auto" src="videos/RLLoop.mp4" poster="posters/RLLoop.png"></video>
-      <img class="print-only" src="posters/RLLoop.png" alt="RL loop" />
       <div class="caption">The loop every driver lives in: observation in, action out, reward back.</div>
     </div>
   </div>
@@ -41,7 +40,6 @@
 
 <section class="full-video">
   <video data-autoplay loop muted playsinline preload="auto" src="videos/EventTimeline.mp4" poster="posters/EventTimeline.png"></video>
-  <img class="print-only" src="posters/EventTimeline.png" alt="Event timeline" />
   <aside class="notes">Three phases. Stage 1 is a two-hour sprint on public tracks. Overnight is for tuning and longer training. Stage 2 moves to hidden tracks and adds the multi-car finale.</aside>
 </section>
 
@@ -100,7 +98,6 @@
   <div class="two wide-left">
     <div class="vid-wrap">
       <video data-autoplay loop muted playsinline preload="auto" src="videos/RLLoop.mp4" poster="posters/RLLoop.png"></video>
-      <img class="print-only" src="posters/RLLoop.png" alt="RL loop" />
     </div>
     <div class="small">
       <p><b>Agent.</b> The driver: a policy π that maps an observation to an action.</p>
@@ -134,7 +131,6 @@
 <section>
   <h2>PPO at a high level</h2>
   <video data-autoplay loop muted playsinline preload="auto" src="videos/PPOPipeline.mp4" poster="posters/PPOPipeline.png" style="max-height: 760px; object-fit: contain;"></video>
-  <img class="print-only" src="posters/PPOPipeline.png" alt="PPO pipeline" />
   <p class="caption">Proximal Policy Optimization: collect a batch of experience from every environment, estimate how much better than expected each action was (the advantage), then nudge the policy toward better actions while clipping how far it can move in one update.</p>
   <aside class="notes">PPO is on-policy: the data comes from the current policy and is thrown away after a few epochs. The clipping ratio of 0.2 is what makes it stable enough to run unattended. One iteration is 20 steps on 4096 envs, then 4 epochs over 4 minibatches of 1024.</aside>
 </section>
@@ -224,15 +220,43 @@
   <aside class="notes">Emphasise that the judge uses its own copy of rlracing; modifying the platform locally cannot change the judge's physics, and will break the observation-version check.</aside>
 </section>
 
-<section class="full-video">
-  <video data-autoplay loop muted playsinline preload="auto" src="videos/ScoringRule.mp4" poster="posters/ScoringRule.png"></video>
-  <img class="print-only" src="posters/ScoringRule.png" alt="Scoring rule" />
+<section class="anim" data-anim="scoring">
+  <div class="anim-stage">
+    <div class="a-title">How a submission is scored</div>
+    <div class="a-sub">Solo judging: one car per track, start on the line, 180 s of simulated time, best lap counts.</div>
+    <div class="chips sc-chips"><span class="chip">deterministic start</span><span class="chip">180 s per track</span><span class="chip">score = best lap</span><span class="chip red">no lap = 999 s</span></div>
+    <div class="a-card sc-card green" style="left: 150px;" data-lap="41.8"><div class="a-name">Oval</div><div class="a-len">lap length 449 m</div><div class="a-time">120.0 s</div><div class="a-note">best of the laps completed</div></div>
+    <div class="a-card sc-card green" style="left: 710px;" data-lap="28.6"><div class="a-name">Loop</div><div class="a-len">lap length 285 m</div><div class="a-time">120.0 s</div><div class="a-note">best of the laps completed</div></div>
+    <div class="a-card sc-card red dnf" style="left: 1270px;"><div class="a-name">Serpent</div><div class="a-len">lap length 382 m</div><div class="a-time muted">— —</div><div class="a-note">crashed on lap 1 ...</div></div>
+    <div class="a-total"><span class="lbl">Leaderboard total</span><span class="mono">41.8 + 28.6 + <span class="bad">999</span> = <b class="a-sum">0.0 s</b></span><span class="muted right">lower is better</span></div>
+    <div class="a-footer">Sum of best laps over all tracks. A DQ freezes your stats but keeps the laps you finished. The best submission per team is kept.</div>
+  </div>
   <aside class="notes">A single DNF track costs 999 s, which is more than any lap-time gain elsewhere. Reliability on every track beats brilliance on one.</aside>
 </section>
 
-<section class="full-video">
-  <video data-autoplay loop muted playsinline preload="auto" src="videos/DQRules.mp4" poster="posters/DQRules.png"></video>
-  <img class="print-only" src="posters/DQRules.png" alt="DQ rules" />
+<section class="anim" data-anim="dq">
+  <div class="anim-stage">
+    <div class="a-title">What ends an episode (and disqualifies a judged run)</div>
+    <div class="a-sub">Fixed by the platform. The same four checks apply in training, evaluation and judging.</div>
+    <div class="a-card dq-tile red" style="left: 120px;">
+      <svg viewBox="0 0 300 150"><rect x="0" y="20" width="300" height="90" fill="#2b2f35"/><line x1="0" y1="20" x2="300" y2="20" stroke="#ddd" stroke-width="4"/><line x1="0" y1="110" x2="300" y2="110" stroke="#ddd" stroke-width="4"/><line x1="0" y1="128" x2="300" y2="128" stroke="#ff6b6b" stroke-width="3" stroke-dasharray="8 8"/><text x="296" y="147" font-size="15" fill="#ff6b6b" text-anchor="end" font-family="var(--rlr-mono)">half-width + 0.5 m</text><g class="dq-off-car"><rect x="110" y="62" width="70" height="34" rx="6" fill="#ff4d3d"/><rect x="125" y="70" width="36" height="18" rx="4" fill="#262a30"/></g></svg>
+      <div class="a-name">Off the track</div><div class="a-text">|lateral offset| &gt; half-width + 0.5 m. Walls normally prevent this.</div>
+    </div>
+    <div class="a-card dq-tile red" style="left: 550px;">
+      <svg viewBox="0 0 300 150"><text x="150" y="22" font-size="16" fill="#9aa7b6" text-anchor="middle" font-family="var(--rlr-mono)">flipped when up·z &lt; 0.3</text><line x1="0" y1="130" x2="300" y2="130" stroke="#ddd" stroke-width="4"/><g class="dq-flip-car"><rect x="105" y="77" width="90" height="36" rx="6" fill="#ff4d3d"/><rect x="122" y="61" width="48" height="18" rx="4" fill="#262a30"/><line x1="150" y1="95" x2="150" y2="55" stroke="#3ddc97" stroke-width="5"/></g></svg>
+      <div class="a-name">Rolled over</div><div class="a-text">The car's up axis has z &lt; 0.3: it is on its side or roof.</div>
+    </div>
+    <div class="a-card dq-tile red" style="left: 980px;">
+      <svg viewBox="0 0 300 150"><path d="M 40 130 A 110 110 0 0 1 260 130" fill="none" stroke="#3a4350" stroke-width="14"/><path d="M 212 44 A 110 110 0 0 1 260 130" fill="none" stroke="#ff6b6b" stroke-width="14"/><text x="150" y="110" font-size="22" fill="#e6edf3" text-anchor="middle" font-family="var(--rlr-mono)">60 m/s</text><line class="dq-needle" x1="150" y1="130" x2="150" y2="35" stroke="#fff" stroke-width="6" stroke-linecap="round"/></svg>
+      <div class="a-name">Too fast</div><div class="a-text">Speed above 60 m/s. Guards against solver blow-ups.</div>
+    </div>
+    <div class="a-card dq-tile red" style="left: 1410px;">
+      <svg viewBox="0 0 300 150"><text class="dq-nan" x="150" y="95" font-size="64" font-weight="800" fill="#ff6b6b" text-anchor="middle" font-family="var(--rlr-mono)">NaN</text><text x="150" y="130" font-size="18" fill="#9aa7b6" text-anchor="middle" font-family="var(--rlr-mono)">qpos / qvel not finite</text></svg>
+      <div class="a-name">Non-finite state</div><div class="a-text">Any NaN or inf in position or velocity ends the run.</div>
+    </div>
+    <div class="a-callout dq-callout"><b>Lap validity.</b> A lap counts only when you cross the line forwards after a valid start. Crossing it backwards voids the lap. Random training starts wait for the first crossing before timing. In judging you start on the line, so lap 1 counts.</div>
+    <div class="a-footer">In multi-car races a DQ'd car coasts to a stop with zero throttle and keeps the laps it had.</div>
+  </div>
   <aside class="notes">Walls are physical, so "off track" mostly happens by launching over a wall after a collision. Rolling over is the common DQ for cars tuned with a high centre of mass and soft suspension.</aside>
 </section>
 
@@ -372,7 +396,6 @@ rlr render runs/replays/*.npz --camera chase      # watch what it actually did
       <div class="callout">Walls are 4 × 0.5 × 1 m boxes every 3.2 m along both edges of the track, 600 of them in the model. They are real: hit one and you bounce.</div>
     </div>
     <iframe class="scene" src="car3d.html?hud=0&camera=free&track=oval" loading="lazy" title="3D car"></iframe>
-    <img class="print-only" src="posters/car3d_car.png" alt="The car in 3D" />
   </div>
   <aside class="notes">The 3D view is the actual geometry: dimensions come from the same formulas that build the MuJoCo model. Drag to orbit.</aside>
 </section>
@@ -393,15 +416,19 @@ rlr render runs/replays/*.npz --camera chase      # watch what it actually did
   <aside class="notes">50 Hz is fast enough for smooth control and slow enough to keep rollouts cheap. 60 m/s is the hard speed limit.</aside>
 </section>
 
-<section>
-  <h2>The observation: 60 floats</h2>
-  <video data-autoplay loop muted playsinline preload="auto" src="videos/ObsLayoutBar.mp4" poster="posters/ObsLayoutBar.png" style="max-height: 820px; object-fit: contain;"></video>
-  <img class="print-only" src="posters/ObsLayoutBar.png" alt="Observation layout" />
+<section class="anim" data-anim="obsbar">
+  <div class="anim-stage">
+    <div class="a-title">Observation v2: the 60 numbers the policy sees</div>
+    <div class="a-sub">Fixed contract. Every entry is divided by a constant so it is O(1); a checkpoint trained against a different version is rejected.</div>
+    <div class="obs-bar"></div>
+    <div class="obs-legend"></div>
+    <div class="obs-lookahead"></div>
+    <div class="a-footer">Policy contract: act(params, obs[60]) → action[2] in [-1, 1], pure JAX.</div>
+  </div>
   <aside class="notes">Eight blocks. Half of the vector is "where is the track going": ten centerline points ahead, in the car frame, plus the width there. Then where you are relative to the centerline, how you are moving, what the wheels do, what you commanded last, and the three nearest cars.</aside>
 </section>
 
 <section data-background-iframe="car3d.html?panel=0&info=0&camera=overhead&track=serpent" data-background-interactive data-obs-block="">
-  <img class="print-only print-bg" src="posters/car3d_overhead.png" alt="Overhead view of the car with its lookahead points" />
   <div class="overlay-box">
     <h2>What the car sees</h2>
     <ul>
@@ -422,7 +449,6 @@ rlr render runs/replays/*.npz --camera chase      # watch what it actually did
 <section>
   <h2>Live readout</h2>
   <iframe class="scene" style="height: 86%;" src="car3d.html?panel=1&camera=chase&track=loop" loading="lazy" title="3D observation readout"></iframe>
-  <img class="print-only" src="posters/car3d_readout.png" alt="Live observation readout" />
   <aside class="notes">Right panel shows the scaled values the policy receives, grouped by block, updating live. Point out that every number stays within about ±1, that lookahead x grows with distance, and that opponent slot 3 stays zero because only two other cars exist.</aside>
 </section>
 

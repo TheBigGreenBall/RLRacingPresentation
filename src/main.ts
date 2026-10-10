@@ -6,6 +6,7 @@ import "reveal.js/theme/black.css";
 import "reveal.js/plugin/highlight/monokai.css";
 import "../theme/theme.css";
 import "./slides.css";
+import { mountSlideAnims } from "./anim";
 
 const deck = new Reveal({
   hash: true,
@@ -35,9 +36,14 @@ function postToScene(slide: Element | null, msg: Record<string, unknown>) {
 }
 
 deck.initialize().then(() => {
+  // anime.js slide animations: replay from the start every time their slide is shown
+  const anims = mountSlideAnims(document.querySelector(".reveal .slides") as ParentNode);
+  anims.get(deck.getCurrentSlide())?.play();
   // pause the 3D scene when its slide is not shown, resume (and reset the camera) when it is
   deck.on("slidechanged", (ev: unknown) => {
     const { previousSlide, currentSlide } = ev as { previousSlide: Element | null; currentSlide: Element };
+    if (previousSlide) anims.get(previousSlide)?.stop();
+    anims.get(currentSlide)?.play();
     postToScene(previousSlide, { visible: false });
     postToScene(currentSlide, { visible: true, block: currentSlide.getAttribute("data-obs-block") ?? null });
   });

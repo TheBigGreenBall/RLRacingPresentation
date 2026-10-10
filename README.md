@@ -7,7 +7,8 @@ lives in this directory.
 | Piece | Tech | Where |
 |---|---|---|
 | Slides (30, with speaker notes) | reveal.js 6 served by Vite | `index.html`, `src/main.ts`, `src/slides.css` |
-| Infographic animations (6 clips) | Remotion 4 (React) | `remotion/`, rendered to `public/videos/*.mp4` + `public/posters/*.png` |
+| Infographic clips (3) | Remotion 4 (React) | `remotion/`, rendered to `public/videos/*.mp4` + `public/posters/*.png` |
+| In-slide animations (scoring, DQ rules, observation layout) | anime.js 4 timelines over live DOM/SVG | `src/anim/*.ts`, replayed on every slide entry |
 | 3D car + observation scene | three.js (vanilla ES modules) | `car3d.html`, `three/*.js`; embedded in the deck as iframes |
 | Real platform data | exported from the hackathon repo | `scripts/export_assets.py` -> `public/data/*.json` |
 | Shared colours / fonts | `theme/theme.ts` (Remotion) and `theme/theme.css` (deck + 3D page) |
@@ -22,14 +23,14 @@ npm run build && npm run preview   # production build in dist/, served on :4173
 ```
 
 The rendered videos, posters and data JSON are committed, so the deck works without re-rendering anything.
+The scoring, DQ and observation-layout slides are animated live with anime.js (timeline restarts each time the slide is shown), so there is nothing to render for them.
 
 ## Rebuild the generated parts
 
 ```bash
 npm run export:assets       # tracks.json / car.json / obs_contract.json from the hackathon repo's .venv
-npm run render:videos       # all six Remotion clips (~1 min each); or: bash scripts/render_videos.sh RLLoop
+npm run render:videos       # the three Remotion clips (~1 min each); or: bash scripts/render_videos.sh RLLoop
 npm run remotion:studio     # live-edit the compositions
-npm run export:pdf          # dist/rl-racing-league.pdf via reveal print mode (videos and 3D slides become posters)
 node scripts/screenshot.mjs "http://localhost:5173/#/27" out.png --wait 4000   # headless check of one slide
 ```
 
