@@ -198,27 +198,6 @@
   <aside class="notes">Section three: the rules proper.</aside>
 </section>
 
-<section>
-  <h2>How a run is judged</h2>
-  <div class="two">
-    <div>
-      <ol>
-        <li>The judge unpacks your zip: <code>params.pkl</code>, <code>meta.json</code>, <code>policy.py</code>, <code>car.yaml</code>, <code>submission.json</code>.</li>
-        <li>It builds <b>your car</b> (clamped) in <b>its</b> copy of the platform and imports your <code>policy.py</code> to get <code>act(params, obs)</code>.</li>
-        <li>For each track: one car, placed on the start line, no noise, <b>180 s of simulated time</b>.</li>
-        <li>Score per track = <b>best completed lap</b>. No completed lap = <b>999 s</b>.</li>
-        <li>A DQ condition freezes the stats at that moment; laps already completed still count.</li>
-      </ol>
-    </div>
-    <div>
-      <div class="chips"><span class="chip">deterministic</span><span class="chip">solo</span><span class="chip">180 s per track</span><span class="chip red">no lap = 999 s</span></div>
-      <div class="callout green">Same code path as <code>rlr evaluate</code>: if it laps in 41 s on your box, it laps in 41 s on the judge.</div>
-      <div class="callout">Allowed imports in <code>policy.py</code>: jax, flax, brax, numpy, mujoco, rlracing. It must be pure JAX: obs shape (60,) in, action shape (2,) in [-1, 1] out.</div>
-    </div>
-  </div>
-  <aside class="notes">Emphasise that the judge uses its own copy of rlracing; modifying the platform locally cannot change the judge's physics, and will break the observation-version check.</aside>
-</section>
-
 <section class="anim" data-anim="scoring">
   <div class="anim-stage">
     <div class="a-title">How a submission is scored</div>
@@ -232,6 +211,7 @@
   </div>
   <aside class="notes">A single DNF track costs 999 s, which is more than any lap-time gain elsewhere. Reliability on every track beats brilliance on one.</aside>
 </section>
+
 
 <section class="anim" data-anim="dq">
   <div class="anim-stage">
@@ -287,10 +267,10 @@
       <div class="mode-head"><span class="mode-title">Ghost mode</span><span class="chip yellow">solo runs, replayed together</span></div>
       <div class="race-svg"></div>
       <ol class="race-board"><li><span class="sw"></span><span class="name"></span><span class="val"></span></li><li><span class="sw"></span><span class="name"></span><span class="val"></span></li><li><span class="sw"></span><span class="name"></span><span class="val"></span></li></ol>
-      <p class="mode-note">Each car drives alone on the track; the replays are overlaid, so cars pass through each other. Ranking is each car's own best lap.</p>
+      <p class="mode-note">Every car starts alone on the line; the solo replays are overlaid, so they begin stacked, spread out by pace, and pass through each other. Ranking is each car's own best lap.</p>
     </div>
     <div class="mode-card mode-collision">
-      <div class="mode-head"><span class="mode-title">Collision mode</span><span class="chip red">one world, contact on</span><span class="race-clock mono"></span></div>
+      <div class="mode-head"><span class="mode-title">Collision mode</span><span class="chip red">one world, contact on</span></div>
       <div class="race-svg"></div>
       <ol class="race-board"><li><span class="sw"></span><span class="name"></span><span class="val"></span></li><li><span class="sw"></span><span class="name"></span><span class="val"></span></li><li><span class="sw"></span><span class="name"></span><span class="val"></span></li></ol>
       <p class="mode-note">Grid start, first to 3 laps in 240 s. Finishers rank by time, then running cars by laps and progress, then DQs. A DQ'd car coasts to a stop.</p>
