@@ -5,6 +5,7 @@ import { mountObsBar } from "./obsbar";
 import { mountRLLoop } from "./rlloop";
 import { mountTimeline } from "./timeline";
 import { mountPPO } from "./ppo";
+import { mountModes } from "./modes";
 
 const MOUNTS: Record<string, (root: HTMLElement) => SlideAnim> = {
   scoring: mountScoring,
@@ -13,6 +14,7 @@ const MOUNTS: Record<string, (root: HTMLElement) => SlideAnim> = {
   rlloop: mountRLLoop,
   timeline: mountTimeline,
   ppo: mountPPO,
+  modes: mountModes,
 };
 
 /** Mount every <section data-anim="..."> once and return a lookup by section. */

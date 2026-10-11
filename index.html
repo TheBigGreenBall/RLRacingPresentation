@@ -280,23 +280,22 @@
   <aside class="notes">Same lap logic in the single-car and multi-car simulators. The random-start rule is only relevant in training.</aside>
 </section>
 
-<section>
+<section data-anim="modes">
   <h2>Ghost mode and collision mode</h2>
-  <div class="cards">
-    <div class="card yellow">
-      <h3>Ghost mode</h3>
-      <p>Every submission's <b>solo</b> run on one track, recorded and replayed together. No contact between cars.</p>
-      <p>Ranking = solo score on that track. Cars literally drive through each other, so what you see is pure pace.</p>
-      <p class="muted small">Stage 1 finale on serpent. Stage 2 primary score on hidden tracks.</p>
+  <div class="modes">
+    <div class="mode-card mode-ghost">
+      <div class="mode-head"><span class="mode-title">Ghost mode</span><span class="chip yellow">solo runs, replayed together</span></div>
+      <div class="race-svg"></div>
+      <ol class="race-board"><li><span class="sw"></span><span class="name"></span><span class="val"></span></li><li><span class="sw"></span><span class="name"></span><span class="val"></span></li><li><span class="sw"></span><span class="name"></span><span class="val"></span></li></ol>
+      <p class="mode-note">Each car drives alone on the track; the replays are overlaid, so cars pass through each other. Ranking is each car's own best lap.</p>
     </div>
-    <div class="card red">
-      <h3>Collision mode</h3>
-      <p>All cars in <b>one world</b> with contact on. Grid start in rows of two, 6 m apart, ±1.8 m from the centerline. 240 s, target 3 laps.</p>
-      <p>Ranking: <b>finishers by time</b>, then still-running cars by laps and progress, then disqualified cars by laps and progress.</p>
-      <p class="muted small">Stage 2 finale. Expect a first-corner pile-up from drivers that never saw traffic.</p>
+    <div class="mode-card mode-collision">
+      <div class="mode-head"><span class="mode-title">Collision mode</span><span class="chip red">one world, contact on</span><span class="race-clock mono"></span></div>
+      <div class="race-svg"></div>
+      <ol class="race-board"><li><span class="sw"></span><span class="name"></span><span class="val"></span></li><li><span class="sw"></span><span class="name"></span><span class="val"></span></li><li><span class="sw"></span><span class="name"></span><span class="val"></span></li></ol>
+      <p class="mode-note">Grid start, first to 3 laps in 240 s. Finishers rank by time, then running cars by laps and progress, then DQs. A DQ'd car coasts to a stop.</p>
     </div>
   </div>
-  <div class="callout">Opponent slots in the observation (indices 45 to 60) are all zero when you train alone. A solo-trained policy sees them light up for the first time in the collision finale. Self-play overnight is how you prepare.</div>
   <aside class="notes">Ghost mode has no interaction, so it is fair and deterministic. Collision mode is the entertainment, with a ranking rule that still rewards finishing.</aside>
 </section>
 
