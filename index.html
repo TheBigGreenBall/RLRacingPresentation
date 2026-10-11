@@ -134,21 +134,45 @@
   <aside class="notes">PPO is on-policy: the data comes from the current policy and is thrown away after a few epochs. The clipping ratio of 0.2 is what makes it stable enough to run unattended. One iteration is 20 steps on 4096 envs, then 4 epochs over 4 minibatches of 1024.</aside>
 </section>
 
-<section>
-  <h2>Exploration versus exploitation</h2>
-  <div class="two">
-    <div>
-      <p>The training policy is <b>stochastic</b>: it samples around its mean action. That noise is how it discovers that braking later works, or that cutting a chicane is faster.</p>
-      <p>An <b>entropy bonus</b> (<code>entropy_cost: 1e-3</code>) keeps the noise from collapsing too early. Too much and the car wobbles forever; too little and it locks into the first thing that worked.</p>
-      <p><b>Random starts</b> (position along the lap, lateral and yaw noise) are exploration too: the policy sees every corner from many angles instead of always arriving the same way.</p>
+<section class="anim" data-anim="explore">
+  <div class="anim-stage">
+    <div class="a-title">Exploration versus exploitation</div>
+    <div class="a-sub">The training policy samples around its mean action. Random starts widen what it sees. The judge drives the mean.</div>
+
+    <div class="a-card xp-card" style="left: 90px; top: 215px; width: 880px; height: 475px;">
+      <div class="a-name">Stochastic policy</div>
+      <div class="a-text">Noise around the mean is how it discovers that braking later works or that cutting a chicane is faster.</div>
+      <svg class="xp-corner" viewBox="0 0 820 220" width="820" height="220"></svg>
+      <div class="xp-std"><span class="xp-std-label mono">policy std</span><div class="xp-std-bar"><div class="xp-std-fill"></div></div><span class="xp-std-val mono">1.00</span></div>
+      <div class="chips"><span class="chip red">▬ mean action (the judge)</span><span class="chip">▬ samples (training)</span><span class="chip yellow mono">entropy_cost: 1e-3</span></div>
     </div>
-    <div>
-      <div class="card green"><h3>Signs you explore too little</h3><p>Reward plateaus early. Policy standard deviation drops near zero. The car takes the same line on every track and understeers on new ones.</p></div>
-      <div class="card yellow"><h3>Signs you explore too much</h3><p>Reward curve stays noisy. Oscillating steering in replays. Lap times improve slower than the training reward suggests.</p></div>
-      <div class="callout">The judge uses the <b>deterministic mean</b> action, so a jittery training policy can still race cleanly.</div>
+
+    <div class="a-card xp-card yellow" style="left: 1010px; top: 215px; width: 820px; height: 475px;">
+      <div class="a-name">Random starts</div>
+      <div class="a-text">Position along the lap, lateral and yaw noise: the policy sees every corner from many angles.</div>
+      <svg class="xp-map" viewBox="0 0 760 220" width="760" height="220"></svg>
+      <div class="chips"><span class="chip yellow mono">judged runs start on the line</span></div>
     </div>
+
+    <div class="a-card xp-card red" style="left: 90px; top: 720px; width: 560px; height: 265px;">
+      <div class="a-name">Too little exploration</div>
+      <svg class="xp-spark" data-kind="little" viewBox="0 0 500 100" width="500" height="100"></svg>
+      <div class="a-text">Reward plateaus early, std collapses. Same line on every track, understeers on new ones.</div>
+    </div>
+    <div class="a-card xp-card green" style="left: 680px; top: 720px; width: 560px; height: 265px;">
+      <div class="a-name">Healthy</div>
+      <svg class="xp-spark" data-kind="healthy" viewBox="0 0 500 100" width="500" height="100"></svg>
+      <div class="a-text">Reward keeps climbing while std shrinks as the laps get faster.</div>
+    </div>
+    <div class="a-card xp-card yellow" style="left: 1270px; top: 720px; width: 560px; height: 265px;">
+      <div class="a-name">Too much exploration</div>
+      <svg class="xp-spark" data-kind="much" viewBox="0 0 500 100" width="500" height="100"></svg>
+      <div class="a-text">Reward stays noisy, std stays high. Steering oscillates in replays, laps improve slowly.</div>
+    </div>
+
+    <div class="a-footer xp-footer"><span class="good">■</span> episode reward &nbsp; <span class="warn">■</span> policy std &nbsp;·&nbsp; both are logged per update in <span class="mono">train_metrics.jsonl</span> and plotted on the dashboard</div>
   </div>
-  <aside class="notes">Point teams at train_metrics.jsonl and the dashboard curves: policy entropy and KL per update are logged.</aside>
+  <aside class="notes">The training policy is stochastic: it samples around its mean action. That noise is how it discovers that braking later works, or that cutting a chicane is faster. An entropy bonus (entropy_cost: 1e-3) keeps the noise from collapsing too early. Too much and the car wobbles forever; too little and it locks into the first thing that worked. Random starts (position along the lap, lateral and yaw noise) are exploration too: the policy sees every corner from many angles instead of always arriving the same way. Signs you explore too little: reward plateaus early, policy standard deviation drops near zero, the car takes the same line on every track and understeers on new ones. Signs you explore too much: reward curve stays noisy, oscillating steering in replays, lap times improve slower than the training reward suggests. The judge uses the deterministic mean action, so a jittery training policy can still race cleanly. Point teams at train_metrics.jsonl and the dashboard curves: policy entropy and KL per update are logged.</aside>
 </section>
 
 <section>
@@ -305,50 +329,52 @@
   <aside class="notes">The contract is enforced technically through the observation version in meta.json, not by trust.</aside>
 </section>
 
-<section>
-  <h2>The 13 car parameters</h2>
-  <div class="two wide-left">
-    <table>
-      <thead><tr><th>parameter</th><th class="num">min</th><th class="num">default</th><th class="num">max</th><th>unit</th></tr></thead>
-      <tbody>
-        <tr><td>wheelbase</td><td class="num">1.6</td><td class="num">2.4</td><td class="num">3.2</td><td>m</td></tr>
-        <tr><td>track_width</td><td class="num">1.1</td><td class="num">1.5</td><td class="num">2.0</td><td>m</td></tr>
-        <tr><td>wheel_radius</td><td class="num">0.22</td><td class="num">0.32</td><td class="num">0.42</td><td>m</td></tr>
-        <tr><td>wheel_width</td><td class="num">0.15</td><td class="num">0.22</td><td class="num">0.35</td><td>m</td></tr>
-        <tr><td>chassis_mass</td><td class="num">250</td><td class="num">450</td><td class="num">900</td><td>kg</td></tr>
-        <tr><td>com_height</td><td class="num">0.30</td><td class="num">0.42</td><td class="num">0.70</td><td>m</td></tr>
-        <tr><td>suspension_stiffness</td><td class="num">10 000</td><td class="num">35 000</td><td class="num">80 000</td><td>N/m</td></tr>
-        <tr><td>suspension_damping</td><td class="num">500</td><td class="num">3 000</td><td class="num">8 000</td><td>N·s/m</td></tr>
-        <tr><td>max_steer_deg</td><td class="num">15</td><td class="num">30</td><td class="num">40</td><td>deg</td></tr>
-        <tr><td>steer_rate</td><td class="num">2.0</td><td class="num">6.0</td><td class="num">12.0</td><td>rad/s</td></tr>
-        <tr><td>max_motor_torque</td><td class="num">300</td><td class="num">900</td><td class="num">1 600</td><td>N·m total</td></tr>
-        <tr><td>drive_split</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">1.0</td><td>0 = RWD, 1 = FWD</td></tr>
-        <tr><td>tire_friction</td><td class="num">0.7</td><td class="num">1.1</td><td class="num">1.4</td><td>coefficient</td></tr>
-      </tbody>
-    </table>
-    <div>
-      <div class="card"><h3>Plus one choice</h3><p><code>wheel_collision: cylinder</code> (default) or <code>sphere</code>. Spheres are cheaper and smoother; cylinders have a flat contact patch.</p></div>
-      <div class="card yellow"><h3>Clamped, never rejected</h3><p><code>rlr package</code> writes the clamped values into <code>car.yaml</code> and prints a note for each one it changed.</p></div>
-      <div class="card red"><h3>Trade-offs</h3><p>More torque and friction mean faster straights and more spins. Lower centre of mass resists rolling over. A longer wheelbase is stable but turns slower; the generator's tightest hidden corners are about 10 m radius.</p></div>
-    </div>
-  </div>
-  <aside class="notes">Wheels add 4 × 20 kg on top of chassis mass, so the default car weighs 530 kg. Changing a range would change physics for everyone, which is why the ranges are frozen.</aside>
-</section>
+<section class="anim" data-anim="carparams">
+  <div class="anim-stage">
+    <div class="a-title">The 13 car parameters</div>
+    <div class="a-sub">Every value is clamped into a frozen range and written to <span class="mono">car.yaml</span>. You pick a shape, not just numbers.</div>
 
-<section>
-  <h2>From training run to leaderboard</h2>
-  <pre><code class="language-bash" data-trim>
-rlr train                           # -> runs/run1 (or --run-name NAME); edit team/config.yaml first
-rlr evaluate runs/run1/final --tracks benchmark   # the judge's solo mode, locally
-rlr package runs/run1               # -> submission/: params.pkl meta.json policy.py car.yaml submission.json
-rlr submit --team my-team --stage 1 # zips and uploads to the league bucket
-rlr render runs/replays/*.npz --camera chase      # watch what it actually did
-  </code></pre>
-  <div class="two" style="margin-top: 0.5em;">
-    <div class="card green"><h3>What the organizer does</h3><p>A poll loop downloads each new zip, judges it in solo mode on the stage's tracks, writes a result JSON and rebuilds the leaderboard. Restart-safe, so nothing is lost if it hiccups.</p></div>
-    <div class="card"><h3>Rejections you can avoid</h3><p>Missing <code>car.yaml</code>, a <code>policy.py</code> that fails to import, or a checkpoint whose observation version is not 2.</p></div>
+    <div class="a-card cp-card" style="left: 90px; top: 215px; width: 1000px; height: 560px;">
+      <div class="a-name">Geometry from your config</div>
+      <svg class="cp-car" viewBox="0 0 940 440" width="940" height="440"></svg>
+    </div>
+
+    <div class="a-card cp-card yellow" style="left: 1120px; top: 215px; width: 710px; height: 560px;">
+      <div class="a-name">Defaults, swept across their ranges</div>
+      <div class="cp-rows"></div>
+    </div>
+
+    <div class="a-card cp-tile red" style="left: 90px; top: 800px; width: 560px; height: 190px;">
+      <svg class="cp-icon" viewBox="0 0 120 120">
+        <path d="M 60 100 C 20 100, 14 60, 44 52 C 70 45, 78 70, 60 72 C 46 73, 48 60, 58 60" fill="none" stroke="var(--rlr-bad)" stroke-width="4" stroke-linecap="round" stroke-dasharray="7 6"/>
+        <g class="cp-spin-car"><rect x="46" y="18" width="28" height="48" rx="6" fill="var(--rlr-accent)"/><rect x="52" y="30" width="16" height="16" rx="3" fill="#262a30"/></g>
+      </svg>
+      <div class="a-name">Torque and grip</div>
+      <div class="a-text">More torque and friction: faster straights, more spins.</div>
+    </div>
+    <div class="a-card cp-tile green" style="left: 680px; top: 800px; width: 560px; height: 190px;">
+      <svg class="cp-icon" viewBox="0 0 120 120">
+        <line x1="6" y1="96" x2="114" y2="96" stroke="#ddd" stroke-width="3"/>
+        <g class="cp-roll-car"><rect x="22" y="58" width="76" height="24" rx="5" fill="var(--rlr-good)"/><rect x="40" y="44" width="36" height="16" rx="4" fill="#262a30"/><circle cx="36" cy="86" r="10" fill="#111"/><circle cx="84" cy="86" r="10" fill="#111"/><circle cx="60" cy="74" r="5" fill="#fff" stroke="var(--rlr-bg)" stroke-width="2"/></g>
+        <path d="M 96 40 A 48 48 0 0 1 108 70" fill="none" stroke="var(--rlr-text-muted)" stroke-width="3" stroke-dasharray="5 5"/>
+      </svg>
+      <div class="a-name">Centre of mass</div>
+      <div class="a-text">A lower centre of mass resists rolling over in fast corners.</div>
+    </div>
+    <div class="a-card cp-tile yellow" style="left: 1270px; top: 800px; width: 560px; height: 190px;">
+      <svg class="cp-icon" viewBox="0 0 120 120">
+        <path d="M 14 110 A 70 70 0 0 1 110 24" fill="none" stroke="#2b2f35" stroke-width="22"/>
+        <path d="M 14 110 A 70 70 0 0 1 110 24" fill="none" stroke="#ddd" stroke-width="2" stroke-dasharray="4 6"/>
+        <text x="30" y="40" font-size="15" fill="var(--rlr-text-muted)" font-family="var(--rlr-mono)">r = 10 m</text>
+        <g class="cp-long-car" transform="translate(50 76) rotate(-45)"><rect x="-22" y="-7" width="44" height="14" rx="3" fill="var(--rlr-warn)"/><rect x="-8" y="-4" width="12" height="8" rx="2" fill="#262a30"/></g>
+      </svg>
+      <div class="a-name">Wheelbase</div>
+      <div class="a-text">Longer is stable but turns slower. Tightest hidden corners are ~10 m radius.</div>
+    </div>
+
+    <div class="a-footer cp-footer">Plus one choice: <span class="mono">wheel_collision: cylinder</span> (default) or <span class="mono">sphere</span> &nbsp;·&nbsp; values are clamped, never rejected</div>
   </div>
-  <aside class="notes">Run through the five commands. The dashboard does the same with buttons.</aside>
+  <aside class="notes">Ranges (min / default / max): wheelbase 1.6 / 2.4 / 3.2 m. track_width 1.1 / 1.5 / 2.0 m. wheel_radius 0.22 / 0.32 / 0.42 m. wheel_width 0.15 / 0.22 / 0.35 m. chassis_mass 250 / 450 / 900 kg. com_height 0.30 / 0.42 / 0.70 m. suspension_stiffness 10 000 / 35 000 / 80 000 N/m. suspension_damping 500 / 3 000 / 8 000 N·s/m. max_steer_deg 15 / 30 / 40 deg. steer_rate 2.0 / 6.0 / 12.0 rad/s. max_motor_torque 300 / 900 / 1 600 N·m total. drive_split 0.0 / 0.0 / 1.0 (0 = RWD, 1 = FWD). tire_friction 0.7 / 1.1 / 1.4. Plus wheel_collision: cylinder (default) or sphere; spheres are cheaper and smoother, cylinders have a flat contact patch. Values are clamped, never rejected: rlr package writes the clamped values into car.yaml and prints a note for each one it changed. Wheels add 4 × 20 kg on top of chassis mass, so the default car weighs 530 kg. Changing a range would change physics for everyone, which is why the ranges are frozen.</aside>
 </section>
 
 <!-- ===================================================== 4. CAR AND OBSERVATION -->
