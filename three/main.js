@@ -3,7 +3,7 @@
 import * as THREE from "three";
 import { createScene, CAMERA_MODES } from "./scene.js";
 import { TrackData, buildTrack } from "./track.js";
-import { buildCar, poseCar, steerCar, spinWheels } from "./car.js";
+import { buildCar, poseCar, steerCar, spinWheels, reshapeCar } from "./car.js";
 import { computeObs } from "./obs.js";
 import { createPanel, createOverlay, makeLabel, BLOCK_COLORS, BLOCK_TEXT } from "./hud.js";
 
@@ -38,11 +38,24 @@ async function main() {
   view.scene.add(trackGroup);
 
   const cfg = carJson.defaults, geo = carJson.geometry;
-  const maxSteer = (cfg.max_steer_deg * Math.PI) / 180;
+  // showcase=1: the car parks on the start line alone, the camera orbits it, and the parent page may reshape it
+  const showcase = params.get("showcase") === "1";
+  const liveCfg = { ...cfg };
+  let liveBodyZ = geo.body_origin_z, showSteer = 0;
+  let maxSteer = (cfg.max_steer_deg * Math.PI) / 180;
   const ego = buildCar(carJson, carJson.car_colors[0]);
   const oppA = buildCar(carJson, carJson.car_colors[1]);
   const oppB = buildCar(carJson, carJson.car_colors[2]);
-  view.scene.add(ego, oppA, oppB);
+  view.scene.add(ego);
+  if (!showcase) view.scene.add(oppA, oppB);
+
+  /** Reshape the ego car from a {params, sag, steer, driveFront, torque} message (see src/anim/carparams.ts). */
+  function applyCar(c) {
+    if (c.params) for (const [k, v] of Object.entries(c.params)) if (typeof v === "number" && Number.isFinite(v)) liveCfg[k] = v;
+    maxSteer = (liveCfg.max_steer_deg * Math.PI) / 180;
+    liveBodyZ = reshapeCar(ego, liveCfg, { sag: c.sag, driveFront: c.driveFront, torque: c.torque }).body_origin_z;
+    showSteer = c.steer || 0;
+  }
 
   // ---------------------------------------------------------------- observation visuals, one group per block
   const groups = contract.blocks.map(() => ({ objects: [], labels: [] }));
@@ -219,9 +232,9 @@ async function main() {
     const c = Math.cos(yaw), s = Math.sin(yaw);
     const vFwd = c * st.velWorld[0] + s * st.velWorld[1];
     const vLeft = -s * st.velWorld[0] + c * st.velWorld[1];
-    const steer = clamp(Math.atan((cfg.wheelbase * st.yawRate) / Math.max(vFwd, 1)), -maxSteer, maxSteer);
+    const steer = clamp(Math.atan((liveCfg.wheelbase * st.yawRate) / Math.max(vFwd, 1)), -maxSteer, maxSteer);
     const throttle = clamp(0.35 + 0.55 * (vDot / (4 * 0.21)), -1, 1);
-    const spin = vFwd / cfg.wheel_radius;
+    const spin = vFwd / liveCfg.wheel_radius;
 
     Object.assign(egoState, {
       x, y, yaw, s: st.s, lateral: lat, headingErr, velWorld: [st.velWorld[0], st.velWorld[1]],
@@ -229,8 +242,8 @@ async function main() {
       wheelSpin: [spin, spin, spin * (1 + 0.02 * Math.max(throttle, 0)), spin * (1 + 0.02 * Math.max(throttle, 0))],
       steer, prevAction: [steer / maxSteer, throttle],
     });
-    poseCar(ego, x, y, yaw, geo.body_origin_z);
-    steerCar(ego, steer);
+    poseCar(ego, x, y, yaw, liveBodyZ);
+    steerCar(ego, showcase ? showSteer : steer);
     spinWheels(ego, spin * dt);
 
     // opponents ride along at offsets with their own wobble
@@ -337,6 +350,12 @@ async function main() {
   }
   let camIdx = Math.max(0, CAMERA_MODES.indexOf(params.get("camera") || "chase"));
   view.setMode(CAMERA_MODES[camIdx]);
+  if (showcase) {
+    st.paused = true;
+    view.setFreeOffset(-5.6, 3.2, 4.3);
+    view.controls.autoRotate = true;
+    view.controls.autoRotateSpeed = 0.9;
+  }
   function cycleCamera() { camIdx = (camIdx + 1) % CAMERA_MODES.length; view.setMode(CAMERA_MODES[camIdx]); view.snap(); }
 
   window.addEventListener("keydown", (ev) => {
@@ -357,6 +376,7 @@ async function main() {
     if ("panel" in m) panel.el.style.display = m.panel ? "" : "none";
     if ("visible" in m) visible = !!m.visible;
     if ("paused" in m) st.paused = !!m.paused;
+    if ("car" in m) applyCar(m.car);
   });
   document.addEventListener("visibilitychange", () => { if (!document.hidden) resetMotion(); });
 

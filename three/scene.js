@@ -71,7 +71,7 @@ export function createScene(container) {
   window.addEventListener("resize", resize);
   resize();
 
-  const state = { mode: "chase", smoothPos: camera.position.clone(), smoothLook: new THREE.Vector3(), snap: true };
+  const state = { mode: "chase", smoothPos: camera.position.clone(), smoothLook: new THREE.Vector3(), snap: true, freeOffset: { dx: -14, dy: 0, dz: 8 } };
   const tmp = new THREE.Vector3(), look = new THREE.Vector3();
 
   function setMode(mode) {
@@ -106,7 +106,7 @@ export function createScene(container) {
       camera.lookAt(state.smoothLook);
     } else {
       // free orbit: keep the target on the car, keep the user's offset
-      if (state.snap) { controls.target.set(x, y, 0.5); camera.position.set(x - 14 * c, y - 14 * s, 8); }
+      if (state.snap) { const o = state.freeOffset; controls.target.set(x, y, 0.5); camera.position.set(x + o.dx * c - o.dy * s, y + o.dx * s + o.dy * c, o.dz); }
       const delta = new THREE.Vector3(x, y, 0.5).sub(controls.target);
       controls.target.add(delta);
       camera.position.add(delta);
@@ -120,11 +120,13 @@ export function createScene(container) {
   }
 
   function snap() { state.snap = true; }
+  /** Where the free camera starts relative to the car (car frame: dx forward, dy left, dz up), applied on the next snap. */
+  function setFreeOffset(dx, dy, dz) { state.freeOffset = { dx, dy, dz }; }
 
   function render() {
     renderer.render(scene, camera);
     css2d.render(scene, camera);
   }
 
-  return { renderer, css2d, scene, camera, controls, resize, setMode, follow, render, snap, state };
+  return { renderer, css2d, scene, camera, controls, resize, setMode, follow, render, snap, setFreeOffset, state };
 }
