@@ -81,7 +81,7 @@ export function buildCar(carJson, color) {
 /**
  * Re-proportion an existing car to a new CarConfig without rebuilding meshes: boxes are scaled, hubs moved,
  * wheels scaled about the axle. `extra.sag` (m) lowers the body on its springs; `extra.steer` (rad) turns the
- * front wheels; `extra.torque` in [0, 1] and `extra.driveFront` in [0, 1] make the driven tyres glow.
+ * front wheels; `extra.torque` in [0, 1] and `extra.driveFront` in [0, 1] make the driven tyres glow (`extra.glowColor`, default red).
  * Returns the derived geometry (its body_origin_z is the new axle height to pose the car at).
  */
 export function reshapeCar(car, cfg, extra = {}) {
@@ -100,7 +100,7 @@ export function reshapeCar(car, cfg, extra = {}) {
     for (const w of u.wheels) {
       const front = w.name === "wheel_fl" || w.name === "wheel_fr";
       const glow = extra.torque * (front ? df : 1 - df);
-      w.children[0].material.emissive.set(0xff4d3d);
+      w.children[0].material.emissive.set(extra.glowColor ?? 0xff4d3d);
       w.children[0].material.emissiveIntensity = 0.9 * glow;
     }
   }

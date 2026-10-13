@@ -40,8 +40,10 @@ async function main() {
   const cfg = carJson.defaults, geo = carJson.geometry;
   // showcase=1: the car parks on the start line alone, the camera orbits it, and the parent page may reshape it
   const showcase = params.get("showcase") === "1";
+  const showOrbit = params.get("orbit") !== "0"; // orbit=0: fixed camera (still draggable)
+  const camParam = (params.get("cam") || "").split(",").map(Number); // cam=dx,dy,dz in the car frame
   const liveCfg = { ...cfg };
-  let liveBodyZ = geo.body_origin_z, showSteer = 0;
+  let liveBodyZ = geo.body_origin_z, showSteer = 0, showSpin = 0;
   let maxSteer = (cfg.max_steer_deg * Math.PI) / 180;
   const ego = buildCar(carJson, carJson.car_colors[0]);
   const oppA = buildCar(carJson, carJson.car_colors[1]);
@@ -49,12 +51,13 @@ async function main() {
   view.scene.add(ego);
   if (!showcase) view.scene.add(oppA, oppB);
 
-  /** Reshape the ego car from a {params, sag, steer, driveFront, torque} message (see src/anim/carparams.ts). */
+  /** Reshape the ego car from a {params, sag, steer, driveFront, torque, glowColor, spin} message (see src/anim/carparams.ts, actions.ts). */
   function applyCar(c) {
     if (c.params) for (const [k, v] of Object.entries(c.params)) if (typeof v === "number" && Number.isFinite(v)) liveCfg[k] = v;
     maxSteer = (liveCfg.max_steer_deg * Math.PI) / 180;
-    liveBodyZ = reshapeCar(ego, liveCfg, { sag: c.sag, driveFront: c.driveFront, torque: c.torque }).body_origin_z;
+    liveBodyZ = reshapeCar(ego, liveCfg, { sag: c.sag, driveFront: c.driveFront, torque: c.torque, glowColor: c.glowColor }).body_origin_z;
     showSteer = c.steer || 0;
+    showSpin = c.spin || 0;
   }
 
   // ---------------------------------------------------------------- observation visuals, one group per block
@@ -352,8 +355,9 @@ async function main() {
   view.setMode(CAMERA_MODES[camIdx]);
   if (showcase) {
     st.paused = true;
-    view.setFreeOffset(-5.6, 3.2, 4.3);
-    view.controls.autoRotate = true;
+    if (camParam.length === 3 && camParam.every(Number.isFinite)) view.setFreeOffset(camParam[0], camParam[1], camParam[2]);
+    else view.setFreeOffset(-5.6, 3.2, 4.3);
+    view.controls.autoRotate = showOrbit;
     view.controls.autoRotateSpeed = 0.9;
   }
   function cycleCamera() { camIdx = (camIdx + 1) % CAMERA_MODES.length; view.setMode(CAMERA_MODES[camIdx]); view.snap(); }
@@ -394,6 +398,7 @@ async function main() {
     if (!visible) return;
     const dt = st.paused ? 0 : dtRaw * speedScale;
     const opps = dt > 0 ? step(dt) : step(1e-4);
+    if (showcase && showSpin) spinWheels(ego, showSpin * dtRaw); // parked demo: wheels spin with the commanded throttle
     const res = computeObs(track, contract, egoState, opps);
     updateVisuals(res, opps);
     view.follow(egoState.x, egoState.y, egoState.yaw, dtRaw);

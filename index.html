@@ -18,7 +18,7 @@
   <aside class="notes">Welcome. This deck covers four things: what the league is, enough RL vocabulary to follow along, the contest rules, and the car with its observation vector. The background is the actual car model driving a real benchmark track, rendered live.</aside>
 </section>
 
-<section data-anim="rlloop">
+<section>
   <h2>What you are building</h2>
   <div class="two">
     <div>
@@ -29,8 +29,8 @@
         <li>You edit one directory, <code>team/</code>. The platform, the physics and the judge are frozen.</li>
       </ul>
     </div>
-    <div>
-      <div class="rl-loop"></div>
+    <div class="mini-scene">
+      <iframe class="scene" src="car3d.html?panel=0&camera=chase&track=loop" loading="lazy" title="3D observation readout"></iframe>
     </div>
   </div>
   <aside class="notes">Two deliverables: a policy and a car configuration. Stress that the evaluation tool teams run locally is literally the judge, so there is no surprise at scoring time.</aside>
@@ -59,7 +59,7 @@
   <aside class="notes">Section two: RL basics. Keep it practical and tied to the racing setting.</aside>
 </section>
 
-<section data-anim="rlloop">
+<section class="vcenter" data-anim="rlloop">
   <h2>Agent, environment, observation, action, reward</h2>
   <div class="two wide-left">
     <div class="rl-loop"></div>
@@ -75,21 +75,19 @@
   <aside class="notes">The environment keeps the full MuJoCo state; the agent sees only the observation. Reward is a design choice made by the team; lap time is the league's choice and the two are only loosely coupled.</aside>
 </section>
 
-<section>
+<section class="vcenter">
   <h2>Policy, episode, return, discount</h2>
   <div class="two">
     <div>
-      <p><b>Policy</b> π(a | o): a neural network with 60 inputs, hidden layers [256, 256, 128], 2 outputs. During training it is stochastic (a Gaussian around the network's mean); the judge uses the mean.</p>
-      <p><b>Episode:</b> one run from reset to termination. In training: up to 3000 steps (60 s), ending early on a DQ condition. Reset puts the car on the track with a random start.</p>
-      <p><b>Return:</b> the discounted sum of future rewards from a step onward. The policy is trained to make the return large.</p>
+      <div class="card red"><h3>Policy</h3><p>The driver. A small neural network that turns the 60 observation numbers into steer and throttle. In training it adds a little randomness to explore; the judge runs it without any.</p></div>
+      <div class="card green"><h3>Return</h3><p>What the policy is trained to maximise: the total reward it expects to collect from now until the end of the episode, not just the reward for the next step.</p></div>
     </div>
     <div>
-      <div class="formula">G<sub>t</sub> = r<sub>t+1</sub> + γ r<sub>t+2</sub> + γ² r<sub>t+3</sub> + ...<br><span class="dim">γ = 0.99 → an effective horizon of about 100 steps, 2 s of driving</span></div>
-      <div class="formula">maximise E<sub>π</sub>[ G<sub>0</sub> ]<br><span class="dim">over all episodes, all tracks in the batch, all random starts</span></div>
-      <div class="callout">Discounting is why the agent cares about the next corner more than the lap after next. 2 s is enough to brake for a hairpin; it is not enough to plan a whole lap, so lookahead points in the observation do that job.</div>
+      <div class="card"><h3>Episode</h3><p>One run from reset to the end: up to 60 seconds of driving, or sooner if the car leaves the track, flips or breaks a rule. In training the car starts at a random spot on the track.</p></div>
+      <div class="card yellow"><h3>Discount</h3><p>Rewards further in the future count a little less each step. With the default setting the agent effectively looks about 2 seconds ahead: enough to brake for a hairpin, not enough to plan a whole lap. The lookahead points in the observation do that job.</p></div>
     </div>
   </div>
-  <aside class="notes">Gamma 0.99 gives a time horizon of about 100 steps. Mention that increasing it is possible in config but makes value estimation noisier.</aside>
+  <aside class="notes">Policy: π(a | o), 60 inputs, hidden layers [256, 256, 128], 2 outputs; stochastic in training (a Gaussian around the network's mean), the judge uses the mean. Episode: up to 3000 steps (60 s), ending early on a DQ condition; reset uses a random start. Return: G_t = r_t+1 + γ r_t+2 + γ² r_t+3 + ..., the discounted sum of future rewards; training maximises the expected return over all episodes, all tracks in the batch and all random starts. Gamma 0.99 gives a time horizon of about 100 steps, 2 s of driving. Mention that increasing it is possible in config but makes value estimation noisier.</aside>
 </section>
 
 <section class="anim" data-anim="ppo">
@@ -176,8 +174,8 @@
 
 <section class="anim" data-anim="reward">
   <div class="anim-stage">
-    <div class="a-title">Reward shaping: your lever</div>
-    <div class="a-sub">Reward is training-time only. Shown here: the default plus two levers the baseline leaves at 0.0, a speed bonus and a centering penalty.</div>
+    <div class="a-title">Reward shaping</div>
+    <div class="a-sub">Reward is training time only</div>
 
     <div class="a-card rw-card green" style="left: 90px; top: 215px; width: 1100px; height: 740px;">
       <div class="a-name">One episode, step by step</div>
@@ -425,20 +423,41 @@
   <aside class="notes">A box chassis on four wheels with independent suspension, built as a MuJoCo model from your 13 parameters. Default footprint 2.91 × 1.82 m, chassis box centred 0.42 m above ground, 530 kg total. Front wheels steer (±30° by default) through position servos; action[0] = −1..1 maps to full lock. Rear-wheel drive by default: 450 N·m per rear wheel; action[1] is the torque fraction. drive_split moves torque to the front. Suspension: a vertical slider per wheel, ±0.12 m travel, spring and damper from your config. Tyres collide with the ground only; the chassis box is what hits walls and other cars. Walls are 4 × 0.5 × 1 m boxes every 3.2 m along both edges of the track, 600 of them in the model. They are real: hit one and you bounce. The 3D view is the actual geometry: dimensions come from the same formulas that build the MuJoCo model. Drag to orbit. Ranges (min / default / max): wheelbase 1.6 / 2.4 / 3.2 m. track_width 1.1 / 1.5 / 2.0 m. wheel_radius 0.22 / 0.32 / 0.42 m. wheel_width 0.15 / 0.22 / 0.35 m. chassis_mass 250 / 450 / 900 kg. com_height 0.30 / 0.42 / 0.70 m. suspension_stiffness 10 000 / 35 000 / 80 000 N/m. suspension_damping 500 / 3 000 / 8 000 N·s/m. max_steer_deg 15 / 30 / 40 deg. steer_rate 2.0 / 6.0 / 12.0 rad/s. max_motor_torque 300 / 900 / 1 600 N·m total. drive_split 0.0 / 0.0 / 1.0 (0 = RWD, 1 = FWD). tire_friction 0.7 / 1.1 / 1.4. Plus wheel_collision: cylinder (default) or sphere; spheres are cheaper and smoother, cylinders have a flat contact patch. Values are clamped, never rejected: rlr package writes the clamped values into car.yaml and prints a note for each one it changed. Wheels add 4 × 20 kg on top of chassis mass, so the default car weighs 530 kg. Changing a range would change physics for everyone, which is why the ranges are frozen.</aside>
 </section>
 
-<section>
-  <h2>Timing and actions</h2>
-  <div class="two">
-    <div>
-      <div class="formula">physics dt = 0.005 s <span class="dim">(200 Hz)</span><br>4 substeps per action<br>control dt = 0.02 s <span class="dim">(50 Hz)</span><br>episode ≤ 3000 steps <span class="dim">(60 s, training)</span><br>judging = 180 s per track <span class="dim">(9000 decisions)</span></div>
-      <div class="formula">action = [steer, throttle] ∈ [-1, 1]²<br><span class="dim">clipped by the environment, then applied for 4 substeps</span></div>
+<section class="anim" data-anim="actions">
+  <div class="anim-stage">
+    <div class="a-title">Timing and actions</div>
+    <div class="a-sub">The policy decides 50 times a second: action = [steer, throttle] ∈ [−1, 1]², clipped, then held for 4 physics substeps of 0.005 s.</div>
+
+    <div class="ta-scene" style="left: 90px; top: 215px; width: 1000px; height: 455px;">
+      <iframe class="scene" src="car3d.html?hud=0&camera=free&track=oval&showcase=1&orbit=0&cam=4.6,2.6,1.4" loading="lazy" title="3D car"></iframe>
+      <span class="ta-hint mono">drag to orbit</span>
     </div>
-    <div>
-      <div class="card"><h3>steer</h3><p>−1 full left lock to +1 full right lock, through a servo with your <code>steer_rate</code>. The observation reports the actual front-wheel angle, so the policy can see lag.</p></div>
-      <div class="card red"><h3>throttle</h3><p>Fraction of <code>max_motor_torque</code> on the driven wheels; negative is braking or reverse. There is no separate brake.</p></div>
-      <div class="card green"><h3>prev_action</h3><p>The last command is part of the next observation (indices 43 and 44), which is what makes the smoothness penalty learnable.</p></div>
+
+    <div class="a-card ta-card" style="left: 90px; top: 690px; width: 1000px; height: 265px;">
+      <div class="a-name">One control step = 4 physics substeps</div>
+      <svg class="ta-strip" viewBox="0 0 940 102" width="940" height="102"></svg>
+      <div class="ta-read ta-strip-read mono">step 0 · t = 0.00 s</div>
+      <div class="chips"><span class="chip">episode ≤ 3000 steps = 60 s (training)</span><span class="chip yellow">judging: 180 s per track = 9000 decisions</span></div>
     </div>
+
+    <div class="a-card ta-card" style="left: 1220px; top: 215px; width: 610px; height: 270px;">
+      <div class="a-name">Action this step</div>
+      <div class="ta-row" data-i="0"><span class="ta-name">steer</span><span class="ta-bar"><span class="ta-fill"></span><span class="ta-ghost"></span></span><span class="ta-val mono">+0.00</span></div>
+      <div class="ta-sub" data-i="0">× 30° lock → commanded +0.0° (+ is left)</div>
+      <div class="ta-row" data-i="1"><span class="ta-name">throttle</span><span class="ta-bar"><span class="ta-fill"></span><span class="ta-ghost"></span></span><span class="ta-val mono">+0.20</span></div>
+      <div class="ta-sub" data-i="1">× 900 N·m on the rear tyres → +180 N·m</div>
+    </div>
+
+    <div class="a-card ta-card red" style="left: 1220px; top: 505px; width: 610px; height: 450px;">
+      <div class="a-name">Steer servo</div>
+      <svg class="ta-dial" viewBox="0 0 560 200" width="560" height="200"></svg>
+      <div class="ta-read ta-dial-read mono">cmd +0.0° · wheels +0.0°</div>
+      <div class="ta-caption"><span class="mono">steer_rate</span> 6 rad/s ≈ 0.12 rad per control step. The observation reports the real wheel angle, so the policy can see the lag.</div>
+    </div>
+
+    <div class="a-footer"><span class="mono">prev_action</span> (indices 43 and 44) carries the last command into the next observation: that is what makes the smoothness penalty learnable.</div>
   </div>
-  <aside class="notes">50 Hz is fast enough for smooth control and slow enough to keep rollouts cheap. 60 m/s is the hard speed limit.</aside>
+  <aside class="notes">Timing: physics dt = 0.005 s (200 Hz); 4 substeps per action; control dt = 0.02 s (50 Hz); an episode is at most 3000 steps (60 s, training); judging is 180 s per track, 9000 decisions. action = [steer, throttle] in [-1, 1]², clipped by the environment, then applied for 4 substeps. Steer: +1 is full left lock, -1 full right lock (the steer hinge turns about +z, so positive is positive yaw), through a servo with your steer_rate. The observation reports the actual front-wheel angle, so the policy can see lag. Throttle: fraction of max_motor_torque on the driven wheels; negative is braking or reverse. There is no separate brake. prev_action: the last command is part of the next observation (indices 43 and 44), which is what makes the smoothness penalty learnable. 50 Hz is fast enough for smooth control and slow enough to keep rollouts cheap. 60 m/s is the hard speed limit. The demo replays a scripted 50 Hz action sequence at about one sixth speed on the parked car: red tyre glow is forward torque, blue is braking or reverse, and the dashed needle is the command while the solid one is the wheel angle.</aside>
 </section>
 
 <section class="anim" data-anim="obsbar">
