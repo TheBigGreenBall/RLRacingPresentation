@@ -9,6 +9,7 @@ import { mountModes } from "./modes";
 import { mountExplore } from "./explore";
 import { mountCarParams } from "./carparams";
 import { mountLapValid } from "./lapvalid";
+import { mountReward } from "./reward";
 
 const MOUNTS: Record<string, (root: HTMLElement) => SlideAnim> = {
   scoring: mountScoring,
@@ -21,6 +22,7 @@ const MOUNTS: Record<string, (root: HTMLElement) => SlideAnim> = {
   explore: mountExplore,
   carparams: mountCarParams,
   lapvalid: mountLapValid,
+  reward: mountReward,
 };
 
 /** Mount every <section data-anim="..."> once and return a lookup by section. */

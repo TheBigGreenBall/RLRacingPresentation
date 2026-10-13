@@ -28,7 +28,6 @@
         <li>Everything runs in <b>MJX</b>, MuJoCo on JAX: thousands of cars simulate in parallel on the GPUs, so a training run takes minutes.</li>
         <li>You edit one directory, <code>team/</code>. The platform, the physics and the judge are frozen.</li>
       </ul>
-      <div class="callout green">Local numbers transfer: <code>rlr evaluate</code> and the organizer judge run the same code on the same tracks.</div>
     </div>
     <div>
       <div class="rl-loop"></div>
@@ -47,7 +46,7 @@
     <div class="tl-dot" data-i="2" style="left: 1500px; background: var(--rlr-accent);"></div>
     <div class="a-card tl-card blue" style="left: 150px;"><div class="tl-head"><span class="a-name">Stage 1</span><span class="chip blue">2 hours</span></div><ul><li>Train a driver with the baseline car</li><li>Score: fastest lap on the 3 public tracks (oval, loop, serpent)</li><li>Then: ghost-mode grid race on serpent</li></ul></div>
     <div class="a-card tl-card yellow" style="left: 690px;"><div class="tl-head"><span class="a-name">Overnight</span><span class="chip yellow">tune and retrain</span></div><ul><li>Tune the 13 clamped car parameters</li><li>Train on more and harder generated tracks</li><li>Optional: self-play against frozen opponents</li></ul></div>
-    <div class="a-card tl-card red" style="left: 1230px;"><div class="tl-head"><span class="a-name">Stage 2</span><span class="chip red">hidden tracks</span></div><ul><li>Tracks you have never seen (easy, medium, hard)</li><li>Ghost mode is the primary score</li><li>Collision race is the finale: grid start, first to 3 laps</li></ul></div>
+    <div class="a-card tl-card red" style="left: 1230px;"><div class="tl-head"><span class="a-name">Stage 2</span><span class="chip red">hidden tracks</span></div><ul><li>Tracks you have never seen (easy, medium, hard)</li><li>Ghost mode is the primary score</li><li>Collision race is the finale: grid start, first to 3 laps</li><li>Gamble on the results</li></ul></div>
     <div class="a-footer">Submit early and often: the leaderboard keeps each team's best submission in every stage.</div>
   </div>
   <aside class="notes">Three phases. Stage 1 is a two-hour sprint on public tracks. Overnight is for tuning and longer training. Stage 2 moves to hidden tracks and adds the multi-car finale.</aside>
@@ -175,24 +174,52 @@
   <aside class="notes">The training policy is stochastic: it samples around its mean action. That noise is how it discovers that braking later works, or that cutting a chicane is faster. An entropy bonus (entropy_cost: 1e-3) keeps the noise from collapsing too early. Too much and the car wobbles forever; too little and it locks into the first thing that worked. Random starts (position along the lap, lateral and yaw noise) are exploration too: the policy sees every corner from many angles instead of always arriving the same way. Signs you explore too little: reward plateaus early, policy standard deviation drops near zero, the car takes the same line on every track and understeers on new ones. Signs you explore too much: reward curve stays noisy, oscillating steering in replays, lap times improve slower than the training reward suggests. The judge uses the deterministic mean action, so a jittery training policy can still race cleanly. Point teams at train_metrics.jsonl and the dashboard curves: policy entropy and KL per update are logged.</aside>
 </section>
 
-<section>
-  <h2>Reward shaping: your lever</h2>
-  <div class="two wide-left">
-    <div>
-      <div class="formula small">r = 1.0 · <b>progress</b> <span class="dim">(metres along the centerline this step)</span><br>
-        &nbsp;&nbsp;+ 0.0 · speed · dt<br>
-        &nbsp;&nbsp;− 0.05 · ‖action − prev_action‖² <span class="dim">(smoothness)</span><br>
-        &nbsp;&nbsp;− 0.0 · (lateral / half_width)² <span class="dim">(centering, off by default)</span><br>
-        &nbsp;&nbsp;− 0.5 · wall_contact − 20 · off_track − 20 · flipped<br>
-        &nbsp;&nbsp;+ 0.0 · lap_completed</div>
-      <p class="small">The default reward is distance gained along the centerline each step, minus small penalties for jerky inputs and wall contact, and a large penalty for leaving the track or rolling over. At 15 m/s that is about 0.3 per step, so an episode's reward is roughly metres driven.</p>
+<section class="anim" data-anim="reward">
+  <div class="anim-stage">
+    <div class="a-title">Reward shaping: your lever</div>
+    <div class="a-sub">Reward is training-time only. Shown here: the default plus two levers the baseline leaves at 0.0, a speed bonus and a centering penalty.</div>
+
+    <div class="a-card rw-card green" style="left: 90px; top: 215px; width: 1100px; height: 740px;">
+      <div class="a-name">One episode, step by step</div>
+      <svg class="rw-track" viewBox="0 0 1040 470" width="1040" height="470"></svg>
+      <div class="rw-hud">
+        <span class="rw-lbl">step reward</span><span class="rw-step mono good">+0.44</span>
+        <span class="rw-lbl">episode Σ</span><span class="rw-sum mono">0.0</span>
+        <span class="rw-badge ok">ON TRACK</span>
+      </div>
+      <div class="rw-caption">Each step: metres gained plus a speed bonus, minus a little for jerky inputs and for straying off centre.</div>
+      <div class="chips"><span class="chip green">≈ 0.45 per step at 15 m/s</span><span class="chip yellow">wall: −0.5 every step touching</span><span class="chip red">off track or flipped: −20, episode over</span></div>
     </div>
-    <div>
-      <div class="card red"><h3>Reward hacking</h3><p>Reward is training-time only; the judge never calls it. Lap time is what counts. A reward that is easy to collect without lapping faster will be collected.</p></div>
-      <div class="card"><h3>Common shaping ideas</h3><ul><li>speed bonus to break slow-and-safe plateaus</li><li>lap bonus to value finishing</li><li>heading-error penalty for cleaner lines</li><li>stronger wall penalty before collision mode</li></ul></div>
+
+    <div class="a-card rw-card" style="left: 1220px; top: 215px; width: 610px; height: 365px;">
+      <div class="a-name">A shaped reward, live</div>
+      <div class="rw-row mono" data-term="progress"><span>r = 1.0 · progress</span><span class="rw-val mono good">+0.30</span><span class="rw-bar"><span class="rw-fill good"></span></span></div>
+      <div class="rw-row mono" data-term="speed"><span>&nbsp;&nbsp;+ 0.5 · speed · dt</span><span class="rw-val mono good">+0.15</span><span class="rw-bar"><span class="rw-fill good"></span></span></div>
+      <div class="rw-row mono" data-term="smoothness"><span>&nbsp;&nbsp;− 0.05 · ‖Δaction‖²</span><span class="rw-val mono bad">−0.01</span><span class="rw-bar"><span class="rw-fill bad"></span></span></div>
+      <div class="rw-row mono" data-term="centering"><span>&nbsp;&nbsp;− 0.2 · (lat / half_width)²</span><span class="rw-val mono muted">0.00</span><span class="rw-bar"><span class="rw-fill bad"></span></span></div>
+      <div class="rw-row mono" data-term="wall"><span>&nbsp;&nbsp;− 0.5 · wall_contact</span><span class="rw-val mono muted">0.00</span><span class="rw-bar"><span class="rw-fill"></span></span></div>
+      <div class="rw-row mono" data-term="off_track"><span>&nbsp;&nbsp;− 20 · off_track</span><span class="rw-val mono muted">0.00</span><span class="rw-bar"><span class="rw-fill"></span></span></div>
+      <div class="rw-row mono" data-term="flip"><span>&nbsp;&nbsp;− 20 · flipped</span><span class="rw-val mono muted">0.00</span><span class="rw-bar"><span class="rw-fill"></span></span></div>
+      <div class="rw-row mono" data-term="lap_bonus"><span>&nbsp;&nbsp;+ 0.0 · lap_completed</span><span class="rw-val mono muted">0.00</span><span class="rw-bar"><span class="rw-fill"></span></span></div>
+      <div class="rw-total mono">step r = <span class="good">+0.45</span> &nbsp;·&nbsp; episode Σ = <span class="good">0.0</span></div>
     </div>
+
+    <div class="a-card rw-card rw-tile red" style="left: 1220px; top: 600px; width: 610px; height: 110px;">
+      <svg viewBox="0 0 150 90" width="150" height="90"><circle cx="75" cy="45" r="28" fill="none" stroke="#5a6472" stroke-width="2" stroke-dasharray="4 5"/><g class="rw-spin"><rect x="96" y="34" width="14" height="22" rx="4" fill="var(--rlr-accent)" stroke="#fff" stroke-width="1.2"/><rect x="99" y="38" width="8" height="6" rx="2" fill="#262a30"/></g><text x="75" y="84" text-anchor="middle" font-family="var(--rlr-mono)" font-size="13" fill="var(--rlr-good)">speed only</text></svg>
+      <div><div class="a-name">Speed bonus alone</div><div class="a-text">Spins in circles and collects reward all day. Progress is what lap time needs.</div></div>
+    </div>
+    <div class="a-card rw-card rw-tile red" style="left: 1220px; top: 723px; width: 610px; height: 110px;">
+      <svg viewBox="0 0 150 90" width="150" height="90"><rect x="0" y="24" width="150" height="42" fill="#2b2f35"/><line x1="0" y1="24" x2="150" y2="24" stroke="#ddd" stroke-width="2"/><line x1="0" y1="66" x2="150" y2="66" stroke="#ddd" stroke-width="2"/><g class="rw-bounce"><rect x="12" y="38" width="24" height="14" rx="4" fill="var(--rlr-accent)" stroke="#fff" stroke-width="1.2"/><rect x="26" y="41" width="6" height="8" rx="2" fill="#262a30"/></g><text x="75" y="84" text-anchor="middle" font-family="var(--rlr-mono)" font-size="13" fill="var(--rlr-bad)">wall = 0</text></svg>
+      <div><div class="a-name">No wall penalty</div><div class="a-text">Walls are physical, so it bounces down the track happily. Progress still accrues.</div></div>
+    </div>
+    <div class="a-card rw-card rw-tile red" style="left: 1220px; top: 846px; width: 610px; height: 110px;">
+      <svg viewBox="0 0 150 90" width="150" height="90"><rect x="0" y="24" width="150" height="42" fill="#2b2f35"/><line x1="0" y1="24" x2="150" y2="24" stroke="#ddd" stroke-width="2"/><line x1="0" y1="66" x2="150" y2="66" stroke="#ddd" stroke-width="2"/><line x1="0" y1="45" x2="150" y2="45" stroke="#5a6472" stroke-width="1.5" stroke-dasharray="4 5"/><g class="rw-crawl"><rect x="30" y="38" width="24" height="14" rx="4" fill="var(--rlr-accent)" stroke="#fff" stroke-width="1.2"/><rect x="44" y="41" width="6" height="8" rx="2" fill="#262a30"/></g><text x="75" y="84" text-anchor="middle" font-family="var(--rlr-mono)" font-size="13" fill="var(--rlr-warn)">4 m/s, dead centre</text></svg>
+      <div><div class="a-name">Slow and safe plateau</div><div class="a-text">Heavy centering or wall penalties breed a crawler. A speed bonus is the usual fix.</div></div>
+    </div>
+
+    <div class="a-footer">Edit <span class="mono">team/reward.py</span>; keep it pure JAX. Every input above is a <span class="mono">RewardContext</span> field &nbsp;·&nbsp; lap time is what the judge scores</div>
   </div>
-  <aside class="notes">Reward hacking stories are useful here: a policy rewarded for speed alone will spin in circles; a progress reward with no wall penalty will bounce off the walls happily because walls are physical.</aside>
+  <aside class="notes">The default reward is distance gained along the centerline each step, minus small penalties for jerky inputs and wall contact, and a large penalty for leaving the track or rolling over. At 15 m/s that is about 0.3 per step, so an episode's reward is roughly metres driven. Reward hacking: reward is training-time only; the judge never calls it. Lap time is what counts. A reward that is easy to collect without lapping faster will be collected. Common shaping ideas: a speed bonus to break slow-and-safe plateaus; a lap bonus to value finishing; a heading-error penalty for cleaner lines; a stronger wall penalty before collision mode. Reward hacking stories are useful here: a policy rewarded for speed alone will spin in circles; a progress reward with no wall penalty will bounce off the walls happily because walls are physical. The demo reward is not the default: it adds a speed weight of 0.5 (0.15 per step at 15 m/s) and a centering weight of 0.2, both 0.0 in the baseline config, to show the levers moving. The demo runs two simulated seconds per animation second; the wall scrape is one simulated second, which is 50 steps at −0.5, so −25.</aside>
 </section>
 
 <section>
